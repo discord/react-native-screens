@@ -1,0 +1,3 @@
+<resources>
+    <integer name="config_mediumAnimTime">300</integer>
+</resources>

@@ -145,7 +145,7 @@ class ScreenStack(context: Context?) : ScreenContainer(context) {
                         StackAnimation.SLIDE_FROM_RIGHT -> it.setCustomAnimations(R.anim.rns_slide_in_from_right, R.anim.rns_slide_out_to_left)
                         StackAnimation.SLIDE_FROM_LEFT -> it.setCustomAnimations(R.anim.rns_slide_in_from_left, R.anim.rns_slide_out_to_right)
                         StackAnimation.SLIDE_FROM_BOTTOM -> it.setCustomAnimations(
-                            R.anim.rns_slide_in_from_bottom, R.anim.rns_no_animation_medium
+                            R.anim.rns_slide_in_from_bottom, R.anim.rns_slide_in_from_bottom_out
                         )
                         StackAnimation.FADE_FROM_BOTTOM -> it.setCustomAnimations(R.anim.rns_fade_from_bottom, R.anim.rns_no_animation_350)
                         StackAnimation.IOS -> it.setCustomAnimations(R.anim.rns_slide_in_from_right_ios, R.anim.rns_slide_out_to_left_ios)
@@ -158,7 +158,7 @@ class ScreenStack(context: Context?) : ScreenContainer(context) {
                         StackAnimation.SLIDE_FROM_RIGHT -> it.setCustomAnimations(R.anim.rns_slide_in_from_left, R.anim.rns_slide_out_to_right)
                         StackAnimation.SLIDE_FROM_LEFT -> it.setCustomAnimations(R.anim.rns_slide_in_from_right, R.anim.rns_slide_out_to_left)
                         StackAnimation.SLIDE_FROM_BOTTOM -> it.setCustomAnimations(
-                            R.anim.rns_no_animation_medium, R.anim.rns_slide_out_to_bottom
+                            R.anim.rns_slide_out_to_bottom_in, R.anim.rns_slide_out_to_bottom
                         )
                         StackAnimation.FADE_FROM_BOTTOM -> it.setCustomAnimations(R.anim.rns_no_animation_250, R.anim.rns_fade_to_bottom)
                         StackAnimation.IOS -> it.setCustomAnimations(R.anim.rns_slide_in_from_left_ios, R.anim.rns_slide_out_to_right_ios)
