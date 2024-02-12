@@ -431,7 +431,7 @@ function NativeStackViewInner({
     React.MutableRefObject<React.Ref<NativeStackNavigatorProps>>
   >;
   const screensRefs = React.useRef<RefHolder>({});
-  const ScreenGestureDetector = React.useContext(GHContext);
+  const { ScreenGestureDetector, gestureRef } = React.useContext(GHContext);
 
   React.useEffect(() => {
     if (
@@ -451,7 +451,8 @@ function NativeStackViewInner({
       transitionAnimation={transitionAnimation}
       screenEdgeGesture={screenEdgeGesture ?? false}
       screensRefs={screensRefs}
-      currentRouteKey={currentRouteKey}>
+      currentRouteKey={currentRouteKey}
+      gestureRef={gestureRef}>
       <ScreenStack
         style={styles.container}
         gestureDetectorBridge={gestureDetectorBridge}>

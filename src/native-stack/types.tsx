@@ -17,6 +17,7 @@ import {
   ViewStyle,
   ColorValue,
 } from 'react-native';
+import { PanGesture } from 'react-native-gesture-handler';
 import {
   GestureDetectorBridge,
   ScreenProps,
@@ -528,4 +529,5 @@ export type GestureProviderProps = PropsWithChildren<{
   goBackGesture: GoBackGesture | undefined;
   transitionAnimation: AnimatedScreenTransition | undefined;
   screenEdgeGesture: boolean | undefined;
+  gestureRef?: React.MutableRefObject<PanGesture | undefined>;
 }>;

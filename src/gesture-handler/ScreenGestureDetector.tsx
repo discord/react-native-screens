@@ -34,6 +34,7 @@ const ScreenGestureDetector = ({
   transitionAnimation: customTransitionAnimation,
   screensRefs,
   currentRouteKey,
+  gestureRef,
 }: GestureProviderProps) => {
   const sharedEvent = useSharedValue(DefaultEvent);
   const startingGesturePosition = useSharedValue(DefaultEvent);
@@ -202,7 +203,9 @@ const ScreenGestureDetector = ({
     finishScreenTransition(screenTransitionConfig.value);
   }
 
-  let panGesture = Gesture.Pan()
+  let panGesture = (
+    gestureRef != null ? Gesture.Pan().withRef(gestureRef) : Gesture.Pan()
+  )
     .onStart(onStart)
     .onUpdate(onUpdate)
     .onEnd(onEnd);
@@ -229,6 +232,7 @@ const ScreenGestureDetector = ({
         .hitSlop({ bottom: 0, height: HIT_SLOP_SIZE });
     }
   }
+
   return (
     <GestureDetector gesture={goBackGesture ? panGesture : EmptyGestureHandler}>
       {children}
