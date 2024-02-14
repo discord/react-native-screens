@@ -16,11 +16,10 @@
     "release": "npm login && release-it",
     "prepare": "bob build && husky install"
   },
-  "main": "lib/commonjs/index",
-  "module": "lib/module/index",
+  "main": "src/index",
+  "module": "src/index",
   "react-native": "src/index",
   "source": "src/index",
-  "types": "lib/typescript/index.d.ts",
   "files": [
     "src/",
     "common/",
