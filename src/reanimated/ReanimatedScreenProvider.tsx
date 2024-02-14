@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from 'react';
-import { View } from 'react-native';
+import type { View } from 'react-native';
 import { ScreenProps, ScreenContext } from 'react-native-screens';
 import ReanimatedNativeStackScreen from './ReanimatedNativeStackScreen';
 import AnimatedScreen from './ReanimatedScreen';

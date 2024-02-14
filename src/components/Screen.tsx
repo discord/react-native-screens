@@ -4,7 +4,7 @@ import { Animated, View } from 'react-native';
 
 import TransitionProgressContext from '../TransitionProgressContext';
 import DelayedFreeze from './helpers/DelayedFreeze';
-import { ScreenProps } from 'react-native-screens';
+import type { ScreenProps } from 'react-native-screens';
 
 import {
   freezeEnabled,

@@ -2,7 +2,7 @@ import React from 'react';
 import { GHContext } from 'react-native-screens';
 import ScreenGestureDetector from './ScreenGestureDetector';
 import type { GestureProviderProps } from '../native-stack/types';
-import { PanGesture } from 'react-native-gesture-handler';
+import type { PanGesture } from 'react-native-gesture-handler';
 
 function GHWrapper(props: GestureProviderProps) {
   return <ScreenGestureDetector {...props} />;
