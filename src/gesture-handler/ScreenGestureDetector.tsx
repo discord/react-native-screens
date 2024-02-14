@@ -14,7 +14,7 @@ import {
   makeMutable,
   runOnUI,
 } from 'react-native-reanimated';
-import type { GestureProviderProps } from 'src/native-stack/types';
+import type { GestureProviderProps } from '../native-stack/types';
 import { getShadowNodeWrapperAndTagFromRef, isFabric } from './fabricUtils';
 import { RNScreensTurboModule } from './RNScreensTurboModule';
 import { DefaultEvent, DefaultScreenDimensions } from './defaults';
@@ -61,7 +61,9 @@ const ScreenGestureDetector = ({
   const screenTagToNodeWrapperUI = makeMutable<Record<string, any>>({});
   const IS_FABRIC = isFabric();
 
-  gestureDetectorBridge.current.stackUseEffectCallback = stackRef => {
+  gestureDetectorBridge.current.stackUseEffectCallback = (
+    stackRef: React.RefObject<any>
+  ) => {
     if (!goBackGesture) {
       return;
     }
