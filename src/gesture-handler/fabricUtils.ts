@@ -1,4 +1,4 @@
-import { NativeStackNavigatorProps } from '../native-stack/types';
+import type { NativeStackNavigatorProps } from '../native-stack/types';
 
 interface HostInstance {
   _internalInstanceHandle: {

@@ -1,4 +1,4 @@
-import {
+import type {
   DefaultNavigatorOptions,
   Descriptor,
   NavigationHelpers,
@@ -9,16 +9,16 @@ import {
   StackActionHelpers,
   RouteProp,
 } from '@react-navigation/native';
-import * as React from 'react';
-import { PropsWithChildren } from 'react';
-import {
+import type * as React from 'react';
+import type { PropsWithChildren } from 'react';
+import type {
   ImageSourcePropType,
   StyleProp,
   ViewStyle,
   ColorValue,
 } from 'react-native';
-import { PanGesture } from 'react-native-gesture-handler';
-import {
+import type { PanGesture } from 'react-native-gesture-handler';
+import type {
   GestureDetectorBridge,
   ScreenProps,
   ScreenStackHeaderConfigProps,
