@@ -61,6 +61,7 @@ export type NativeStackNavigationProp<
 > = NavigationProp<
   ParamList,
   RouteName,
+  // @ts-ignore Needed for Discord TSC to pass
   StackNavigationState<ParamList>,
   NativeStackNavigationOptions,
   NativeStackNavigationEventMap
@@ -461,10 +462,12 @@ export type NativeStackNavigationOptions = {
 };
 
 export type NativeStackNavigatorProps =
+  // @ts-ignore Needed for Discord TSC to pass
   DefaultNavigatorOptions<NativeStackNavigationOptions> &
     StackRouterOptions &
     NativeStackNavigationConfig;
 
+// @ts-ignore Needed for Discord TSC to pass
 export type NativeStackDescriptor = Descriptor<
   ParamListBase,
   string,
