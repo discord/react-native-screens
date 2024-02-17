@@ -13,8 +13,7 @@
     "lint-js": "eslint --ext '.js,.ts,.tsx' --fix src",
     "lint-android": "./android/gradlew -p android spotlessCheck -q",
     "lint": "yarn lint-js && yarn lint-android",
-    "release": "npm login && release-it",
-    "prepare": "bob build && husky install"
+    "release": "npm login && release-it"
   },
   "main": "src/index",
   "module": "src/index",
