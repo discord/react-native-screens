@@ -3,7 +3,6 @@
 import React from 'react';
 import { SearchBarCommands, SearchBarProps } from '../types';
 import { isSearchBarAvailableForCurrentPlatform } from '../utils';
-import { View } from 'react-native';
 
 // Native components
 import SearchBarNativeComponent, {
@@ -79,7 +78,7 @@ function SearchBar(props: SearchBarProps, ref: React.Ref<SearchBarCommands>) {
     console.warn(
       'Importing SearchBar is only valid on iOS and Android devices.',
     );
-    return View as unknown as React.ReactNode;
+    return null;
   }
 
   return (

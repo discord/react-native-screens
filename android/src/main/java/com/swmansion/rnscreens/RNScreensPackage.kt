@@ -1,6 +1,6 @@
 package com.swmansion.rnscreens
 
-import com.facebook.react.TurboReactPackage
+import com.facebook.react.BaseReactPackage
 import com.facebook.react.bridge.NativeModule
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.module.annotations.ReactModuleList
@@ -9,12 +9,14 @@ import com.facebook.react.module.model.ReactModuleInfoProvider
 import com.facebook.react.uimanager.ViewManager
 import com.swmansion.rnscreens.utils.ScreenDummyLayoutHelper
 
+// Fool autolinking for older versions that do not support BaseReactPackage.
+// public class RNScreensPackage implements TurboReactPackage {
 @ReactModuleList(
     nativeModules = [
         ScreensModule::class,
     ],
 )
-class RNScreensPackage : TurboReactPackage() {
+class RNScreensPackage : BaseReactPackage() {
     // We just retain it here. This object helps us tackle jumping content when using native header.
     // See: https://github.com/software-mansion/react-native-screens/pull/2169
     private var screenDummyLayoutHelper: ScreenDummyLayoutHelper? = null
@@ -28,6 +30,10 @@ class RNScreensPackage : TurboReactPackage() {
         if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
             screenDummyLayoutHelper = ScreenDummyLayoutHelper(reactContext)
         }
+
+        // Proxy needs to register for lifecycle events in order to unregister itself
+        // on activity restarts.
+        InsetsObserverProxy.registerWithContext(reactContext)
 
         return listOf<ViewManager<*, *>>(
             ScreenContainerViewManager(),

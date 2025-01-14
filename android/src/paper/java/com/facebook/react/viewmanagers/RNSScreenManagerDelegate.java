@@ -14,10 +14,11 @@ import androidx.annotation.Nullable;
 import com.facebook.react.bridge.ColorPropConverter;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.uimanager.BaseViewManager;
 import com.facebook.react.uimanager.BaseViewManagerDelegate;
-import com.facebook.react.uimanager.BaseViewManagerInterface;
+import com.facebook.react.uimanager.LayoutShadowNode;
 
-public class RNSScreenManagerDelegate<T extends View, U extends BaseViewManagerInterface<T> & RNSScreenManagerInterface<T>> extends BaseViewManagerDelegate<T, U> {
+public class RNSScreenManagerDelegate<T extends View, U extends BaseViewManager<T, ? extends LayoutShadowNode> & RNSScreenManagerInterface<T>> extends BaseViewManagerDelegate<T, U> {
   public RNSScreenManagerDelegate(U viewManager) {
     super(viewManager);
   }
@@ -52,7 +53,7 @@ public class RNSScreenManagerDelegate<T extends View, U extends BaseViewManagerI
         mViewManager.setFullScreenSwipeEnabled(view, value == null ? false : (boolean) value);
         break;
       case "fullScreenSwipeShadowEnabled":
-        mViewManager.setFullScreenSwipeShadowEnabled(view, value == null ? false : (boolean) value);
+        mViewManager.setFullScreenSwipeShadowEnabled(view, value == null ? true : (boolean) value);
         break;
       case "homeIndicatorHidden":
         mViewManager.setHomeIndicatorHidden(view, value == null ? false : (boolean) value);
@@ -91,7 +92,7 @@ public class RNSScreenManagerDelegate<T extends View, U extends BaseViewManagerI
         mViewManager.setStackAnimation(view, (String) value);
         break;
       case "transitionDuration":
-        mViewManager.setTransitionDuration(view, value == null ? 350 : ((Double) value).intValue());
+        mViewManager.setTransitionDuration(view, value == null ? 500 : ((Double) value).intValue());
         break;
       case "replaceAnimation":
         mViewManager.setReplaceAnimation(view, (String) value);
