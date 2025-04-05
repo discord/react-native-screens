@@ -416,7 +416,7 @@ function NativeStackViewInner({
   state,
   navigation,
   descriptors,
-}: Props): JSX.Element {
+}: Props): React.JSX.Element {
   const { key, routes } = state;
 
   const currentRouteKey = routes[state.index].key;

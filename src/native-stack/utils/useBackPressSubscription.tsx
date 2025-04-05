@@ -22,7 +22,7 @@ export function useBackPressSubscription({
   isDisabled,
 }: Args): UseBackPressSubscription {
   const [isActive, setIsActive] = React.useState(false);
-  const subscription = React.useRef<NativeEventSubscription | undefined>();
+  const subscription = React.useRef<NativeEventSubscription | undefined>(undefined);
 
   const clearSubscription = React.useCallback((shouldSetActive = true) => {
     subscription.current?.remove();

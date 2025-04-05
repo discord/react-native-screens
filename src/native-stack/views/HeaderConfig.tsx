@@ -52,7 +52,7 @@ export default function HeaderConfig({
   route,
   searchBar,
   title,
-}: Props): JSX.Element {
+}: Props): React.JSX.Element {
   const { colors } = useTheme();
   const tintColor = headerTintColor ?? colors.primary;
 

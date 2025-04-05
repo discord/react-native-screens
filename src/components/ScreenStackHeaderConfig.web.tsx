@@ -8,7 +8,7 @@ import {
 
 export const ScreenStackHeaderBackButtonImage = (
   props: ImageProps,
-): JSX.Element => (
+): React.JSX.Element => (
   <View>
     <Image resizeMode="center" fadeDuration={0} {...props} />
   </View>
@@ -16,23 +16,23 @@ export const ScreenStackHeaderBackButtonImage = (
 
 export const ScreenStackHeaderRightView = (
   props: React.PropsWithChildren<ViewProps>,
-): JSX.Element => <View {...props} />;
+): React.JSX.Element => <View {...props} />;
 
 export const ScreenStackHeaderLeftView = (
   props: React.PropsWithChildren<ViewProps>,
-): JSX.Element => <View {...props} />;
+): React.JSX.Element => <View {...props} />;
 
 export const ScreenStackHeaderCenterView = (
   props: React.PropsWithChildren<ViewProps>,
-): JSX.Element => <View {...props} />;
+): React.JSX.Element => <View {...props} />;
 
 export const ScreenStackHeaderSearchBarView = (
   props: React.PropsWithChildren<Omit<SearchBarProps, 'ref'>>,
-): JSX.Element => <View {...props} />;
+): React.JSX.Element => <View {...props} />;
 
 export const ScreenStackHeaderConfig = (
   props: React.PropsWithChildren<ScreenStackHeaderConfigProps>,
-): JSX.Element => <View {...props} />;
+): React.JSX.Element => <View {...props} />;
 
 export const ScreenStackHeaderSubview: React.ComponentType<
   React.PropsWithChildren<ViewProps & { type?: HeaderSubviewTypes }>
