@@ -20,7 +20,7 @@ export const ScreenStackHeaderSubview: React.ComponentType<
 
 export const ScreenStackHeaderBackButtonImage = (
   props: ImageProps,
-): JSX.Element => (
+): React.JSX.Element => (
   <ScreenStackHeaderSubview type="back" style={styles.headerSubview}>
     <Image resizeMode="center" fadeDuration={0} {...props} />
   </ScreenStackHeaderSubview>
@@ -28,7 +28,7 @@ export const ScreenStackHeaderBackButtonImage = (
 
 export const ScreenStackHeaderRightView = (
   props: React.PropsWithChildren<ViewProps>,
-): JSX.Element => (
+):React.JSX.Element => (
   <ScreenStackHeaderSubview
     {...props}
     type="right"
@@ -38,7 +38,7 @@ export const ScreenStackHeaderRightView = (
 
 export const ScreenStackHeaderLeftView = (
   props: React.PropsWithChildren<ViewProps>,
-): JSX.Element => (
+): React.JSX.Element => (
   <ScreenStackHeaderSubview
     {...props}
     type="left"
@@ -48,7 +48,7 @@ export const ScreenStackHeaderLeftView = (
 
 export const ScreenStackHeaderCenterView = (
   props: React.PropsWithChildren<ViewProps>,
-): JSX.Element => (
+): React.JSX.Element => (
   <ScreenStackHeaderSubview
     {...props}
     type="center"
@@ -58,7 +58,7 @@ export const ScreenStackHeaderCenterView = (
 
 export const ScreenStackHeaderSearchBarView = (
   props: React.PropsWithChildren<SearchBarProps>,
-): JSX.Element => (
+): React.JSX.Element => (
   <ScreenStackHeaderSubview
     {...props}
     type="searchBar"

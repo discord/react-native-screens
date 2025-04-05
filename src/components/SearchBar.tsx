@@ -16,7 +16,7 @@ import SearchBarNativeComponent, {
 import { DirectEventHandler } from 'react-native/Libraries/Types/CodegenTypes';
 
 export const NativeSearchBar: React.ComponentType<
-  SearchBarNativeProps & { ref?: React.RefObject<SearchBarCommands> }
+  SearchBarNativeProps & { ref?: React.RefObject<SearchBarCommands | null> }
 > &
   typeof NativeSearchBarCommands =
   SearchBarNativeComponent as unknown as React.ComponentType<SearchBarNativeProps> &
@@ -24,7 +24,7 @@ export const NativeSearchBar: React.ComponentType<
 export const NativeSearchBarCommands: SearchBarCommandsType =
   SearchBarNativeCommands as SearchBarCommandsType;
 
-type NativeSearchBarRef = React.ElementRef<typeof NativeSearchBar>;
+type NativeSearchBarRef = React.ComponentRef<typeof NativeSearchBar>;
 
 type SearchBarCommandsType = {
   blur: (viewRef: NativeSearchBarRef) => void;
