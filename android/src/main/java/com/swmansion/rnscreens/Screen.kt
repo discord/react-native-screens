@@ -76,9 +76,7 @@ class Screen(
             val width = r - l
             val height = b - t
 
-            if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-                updateScreenSizeFabric(width, height, t)
-            } else {
+            if (!BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
                 updateScreenSizePaper(width, height)
             }
 
