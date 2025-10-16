@@ -17,7 +17,7 @@ import com.swmansion.rnscreens.utils.setTweenAnimations
 import kotlin.collections.ArrayList
 import kotlin.math.max
 
-class ScreenStack(
+open class ScreenStack(
     context: Context?,
 ) : ScreenContainer(context) {
     private val stack = ArrayList<ScreenStackFragmentWrapper>()
