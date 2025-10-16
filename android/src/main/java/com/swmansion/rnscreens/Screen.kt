@@ -35,7 +35,7 @@ import com.swmansion.rnscreens.ext.asScreenStackFragment
 import com.swmansion.rnscreens.ext.parentAsViewGroup
 
 @SuppressLint("ViewConstructor") // Only we construct this view, it is never inflated.
-class Screen(
+open class Screen(
     val reactContext: ThemedReactContext,
 ) : FabricEnabledViewGroup(reactContext),
     ScreenContentWrapper.OnLayoutCallback {
@@ -452,14 +452,14 @@ class Screen(
 
     var nativeBackButtonDismissalEnabled: Boolean = true
 
-    fun startRemovalTransition() {
+    open fun startRemovalTransition() {
         if (!isBeingRemoved) {
             isBeingRemoved = true
             startTransitionRecursive(this)
         }
     }
 
-    fun endRemovalTransition() {
+    open fun endRemovalTransition() {
         if (!isBeingRemoved) {
             return
         }
