@@ -28,6 +28,13 @@
 #define MUTATION_PARENT_TAG(mutation) mutation.parentTag
 #endif
 
+#pragma mark - iOS version dependent code
+
+// Macro to check iOS version availability at compile time
+// Usage: #if RNS_IPHONE_OS_VERSION_AVAILABLE(26_0)
+#define RNS_IPHONE_OS_VERSION_AVAILABLE(version) \
+  (defined(__IPHONE_##version) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_##version)
+
 #pragma mark - React Native architecture dependent code
 
 #ifdef RCT_NEW_ARCH_ENABLED
