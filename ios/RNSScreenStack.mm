@@ -20,7 +20,7 @@
 #import "RCTTouchHandler+RNSUtility.h"
 #endif // RCT_NEW_ARCH_ENABLED
 
-#import "RNSDefines.h"
+#import "utils/RNSDefines.h"
 #import "RNSPercentDrivenInteractiveTransition.h"
 #import "RNSScreen.h"
 #import "RNSScreenStack.h"
@@ -156,7 +156,7 @@ namespace react = facebook::react;
   UINavigationController *_controller;
   NSMutableArray<RNSScreenView *> *_reactSubviews;
   BOOL _invalidated;
-  BOOL _isFullWidthSwiping;
+  BOOL _isFullWidthSwipingWithPanGestureRecognizer;
   RNSPercentDrivenInteractiveTransition *_interactionController;
   __weak RNSScreenStackManager *_manager;
   BOOL _updateScheduled;
@@ -351,6 +351,11 @@ RNS_IGNORE_SUPER_CALL_END
         [self addSubview:controller.view];
 #if !TARGET_OS_TV
         _controller.interactivePopGestureRecognizer.delegate = self;
+#if RNS_IPHONE_OS_VERSION_AVAILABLE(26_0)
+        if (@available(iOS 26, *)) {
+          _controller.interactiveContentPopGestureRecognizer.delegate = self;
+        }
+#endif // Check for iOS >= 26.0
 #endif
         [controller didMoveToParentViewController:parentView.reactViewController];
         // On iOS pre 12 we observed that `willShowViewController` delegate method does not always
@@ -760,7 +765,7 @@ RNS_IGNORE_SUPER_CALL_END
       // when preventing the native dismiss with back button, we have to return the animator.
       // Also, we need to return the animator when full width swiping even if the animation is not custom,
       // otherwise the screen will be just popped immediately due to no animation
-      ((operation == UINavigationControllerOperationPop && shouldCancelDismiss) || _isFullWidthSwiping ||
+      ((operation == UINavigationControllerOperationPop && shouldCancelDismiss) || _isFullWidthSwipingWithPanGestureRecognizer ||
        [RNSScreenStackAnimator isCustomAnimation:screen.stackAnimation] || _customAnimation)) {
     return [[RNSScreenStackAnimator alloc] initWithOperation:operation];
   }
@@ -784,23 +789,44 @@ RNS_IGNORE_SUPER_CALL_END
   }
   RNSScreenView *topScreen = _reactSubviews.lastObject;
 
+  BOOL customAnimationOnSwipePropSetAndSelectedAnimationIsCustom =
+      topScreen.customAnimationOnSwipe && [RNSScreenStackAnimator isCustomAnimation:topScreen.stackAnimation];
+
 #if TARGET_OS_TV || TARGET_OS_VISION
   [self cancelTouchesInParent];
   return YES;
 #else
-  // RNSPanGestureRecognizer will receive events iff topScreen.fullScreenSwipeEnabled == YES;
-  // Events are filtered in gestureRecognizer:shouldReceivePressOrTouchEvent: method
+
   if ([gestureRecognizer isKindOfClass:[RNSPanGestureRecognizer class]]) {
-    if ([self isInGestureResponseDistance:gestureRecognizer topScreen:topScreen]) {
-      _isFullWidthSwiping = YES;
-      [self cancelTouchesInParent];
-      return YES;
+    // On iOS < 26, we have a custom full screen swipe recognizer that functions similarly
+    // to interactiveContentPopGestureRecognizer introduced in iOS 26.
+    // On iOS >= 26, we want to use the native one, but we are unable to handle custom animations
+    // with native interactiveContentPopGestureRecognizer, so we have to fallback to the old implementation.
+    // In this case, the old one should behave as close as the new native one, having only the difference
+    // in animation, and without any customization that is exclusive for it (e.g. gestureResponseDistance).
+#if RNS_IPHONE_OS_VERSION_AVAILABLE(26_0)
+    if (@available(iOS 26, *)) {
+      if (customAnimationOnSwipePropSetAndSelectedAnimationIsCustom) {
+        _isFullWidthSwipingWithPanGestureRecognizer = YES;
+        [self cancelTouchesInParent];
+        return YES;
+      }
+      return NO;
+    } else {
+#endif
+      if ([self isInGestureResponseDistance:gestureRecognizer topScreen:topScreen]) {
+        _isFullWidthSwipingWithPanGestureRecognizer = YES;
+        [self cancelTouchesInParent];
+        return YES;
+      }
+      return NO;
+#if RNS_IPHONE_OS_VERSION_AVAILABLE(26_0)
     }
-    return NO;
+#endif
   }
 
   // Now we're dealing with RNSScreenEdgeGestureRecognizer (or _UIParallaxTransitionPanGestureRecognizer)
-  if (topScreen.customAnimationOnSwipe && [RNSScreenStackAnimator isCustomAnimation:topScreen.stackAnimation]) {
+  if (customAnimationOnSwipePropSetAndSelectedAnimationIsCustom) {
     if ([gestureRecognizer isKindOfClass:[RNSScreenEdgeGestureRecognizer class]]) {
       UIRectEdge edges = ((RNSScreenEdgeGestureRecognizer *)gestureRecognizer).edges;
       BOOL isRTL = _controller.view.semanticContentAttribute == UISemanticContentAttributeForceRightToLeft;
@@ -908,7 +934,7 @@ RNS_IGNORE_SUPER_CALL_END
         [_interactionController cancelInteractiveTransition];
       }
       _interactionController = nil;
-      _isFullWidthSwiping = NO;
+      _isFullWidthSwipingWithPanGestureRecognizer = NO;
     }
     default: {
       break;
@@ -1024,6 +1050,11 @@ RNS_IGNORE_SUPER_CALL_END
 
 #if !TARGET_OS_TV && !TARGET_OS_VISION
 
+- (BOOL)scrollViewHasHorizontalPart:(UIScrollView *)scrollView
+{
+  return scrollView.contentSize.width > scrollView.frame.size.width;
+}
+
 - (BOOL)isScrollViewPanGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
 {
   // NOTE: This hack is required to restore native behavior of edge swipe (interactive pop gesture)
@@ -1044,15 +1075,47 @@ RNS_IGNORE_SUPER_CALL_END
 {
   RNSScreenView *topScreen = _reactSubviews.lastObject;
 
+  for (RNSScreenView *s in _reactSubviews.reverseObjectEnumerator) {
+    // Skip preloaded screens (state=RNSActivityStateInactive) that are on top and not yet navigated to
+    // The "real" top screen is the one with state=RNSActivityStateOnTop
+    if (s.activityState == RNSActivityStateOnTop) {
+      topScreen = s;
+      break;
+    }
+  }
+
   if (![topScreen isKindOfClass:[RNSScreenView class]] || !topScreen.gestureEnabled ||
       _controller.viewControllers.count < 2 || [topScreen isModal]) {
     return NO;
   }
 
+  BOOL customAnimationOnSwipePropSetAndSelectedAnimationIsCustom =
+      topScreen.customAnimationOnSwipe && [RNSScreenStackAnimator isCustomAnimation:topScreen.stackAnimation];
+
+#if RNS_IPHONE_OS_VERSION_AVAILABLE(26_0)
+  if (@available(iOS 26, *)) {
+    // On iOS 26, fullScreenSwipeEnabled takes no effect, and depending on whether custom animations are on,
+    // we select either interactiveContentPopGestureRecognizer or RNSPanGestureRecognizer
+    if ([gestureRecognizer isKindOfClass:[RNSPanGestureRecognizer class]]) {
+      // Use RNSPanGestureRecognizer only for custom animations, block it otherwise
+      return customAnimationOnSwipePropSetAndSelectedAnimationIsCustom;
+    }
+    if (gestureRecognizer == _controller.interactiveContentPopGestureRecognizer) {
+      // Use interactiveContentPopGestureRecognizer when custom animations are OFF
+      return !customAnimationOnSwipePropSetAndSelectedAnimationIsCustom;
+    }
+  } else {
+    // We want to pass events to RNSPanGestureRecognizer iff full screen swipe is enabled.
+    if ([gestureRecognizer isKindOfClass:[RNSPanGestureRecognizer class]]) {
+      return topScreen.fullScreenSwipeEnabled;
+    }
+  }
+#else // check for iOS >= 26
   // We want to pass events to RNSPanGestureRecognizer iff full screen swipe is enabled.
   if ([gestureRecognizer isKindOfClass:[RNSPanGestureRecognizer class]]) {
     return topScreen.fullScreenSwipeEnabled;
   }
+#endif
 
   // RNSScreenEdgeGestureRecognizer || _UIParallaxTransitionPanGestureRecognizer
   return YES;
@@ -1086,12 +1149,38 @@ RNS_IGNORE_SUPER_CALL_END
   return NO;
 }
 
+#if RNS_IPHONE_OS_VERSION_AVAILABLE(26_0)
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
+    shouldRequireFailureOfGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+  if (@available(iOS 26, *)) {
+    if (gestureRecognizer == _controller.interactiveContentPopGestureRecognizer &&
+        [self isScrollViewPanGestureRecognizer:otherGestureRecognizer]) {
+      // ScrollView should take precedence when scrolling - but only if it has horizontal scrolling
+      // For vertical-only ScrollViews, allow horizontal swipe to dismiss
+      return [self scrollViewHasHorizontalPart:(UIScrollView *)otherGestureRecognizer.view];
+    }
+  }
+
+  return NO;
+}
+#endif // check for iOS >= 26
+
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
     shouldBeRequiredToFailByGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
-  return (
-      [gestureRecognizer isKindOfClass:[UIScreenEdgePanGestureRecognizer class]] &&
-      [self isScrollViewPanGestureRecognizer:otherGestureRecognizer]);
+  BOOL isEdgeSwipeGestureRecognizer = [gestureRecognizer isKindOfClass:[UIScreenEdgePanGestureRecognizer class]];
+#if RNS_IPHONE_OS_VERSION_AVAILABLE(26_0)
+  if (@available(iOS 26, *)) {
+    // interactiveContentPopGestureRecognizer has the same base class as UIScreenEdgePanGestureRecognizer
+    // but we don't want ScrollView to wait for it to fail. Instead, the pop gesture should wait for ScrollView.
+    // See also: shouldRequireFailureOfGestureRecognizer
+    isEdgeSwipeGestureRecognizer =
+        isEdgeSwipeGestureRecognizer && gestureRecognizer != _controller.interactiveContentPopGestureRecognizer;
+  }
+#endif // check for iOS >= 26
+
+  return isEdgeSwipeGestureRecognizer && [self isScrollViewPanGestureRecognizer:otherGestureRecognizer];
 }
 
 #endif // !TARGET_OS_TV
