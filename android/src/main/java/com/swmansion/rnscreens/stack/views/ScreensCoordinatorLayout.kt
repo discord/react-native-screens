@@ -7,11 +7,12 @@ import android.view.animation.AnimationSet
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.facebook.react.uimanager.ReactPointerEventsView
 import com.swmansion.rnscreens.PointerEventsBoxNoneImpl
+import com.swmansion.rnscreens.Screen
 import com.swmansion.rnscreens.ScreenStackFragment
 import com.swmansion.rnscreens.bottomsheet.usesFormSheetPresentation
 import com.swmansion.rnscreens.stack.anim.ScreensAnimation
 
-internal class ScreensCoordinatorLayout(
+class ScreensCoordinatorLayout(
     context: Context,
     internal val fragment: ScreenStackFragment,
     private val pointerEventsImpl: ReactPointerEventsView,
@@ -22,6 +23,8 @@ internal class ScreensCoordinatorLayout(
         fragment,
         PointerEventsBoxNoneImpl(),
     )
+
+    fun getScreen(): Screen = fragment.screen
 
     override fun onApplyWindowInsets(insets: WindowInsets?): WindowInsets = super.onApplyWindowInsets(insets)
 

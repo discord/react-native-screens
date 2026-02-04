@@ -19,7 +19,7 @@ import com.swmansion.rnscreens.utils.setTweenAnimations
 import kotlin.collections.ArrayList
 import kotlin.math.max
 
-class ScreenStack(
+open class ScreenStack(
     context: Context?,
 ) : ScreenContainer(context) {
     private val stack = ArrayList<ScreenStackFragmentWrapper>()
@@ -269,6 +269,7 @@ class ScreenStack(
                 screenWrappers
                     .asSequence()
                     .dropWhile { it !== visibleBottom } // ignore all screens beneath the visible bottom
+                    .filter { !it.fragment.isAdded } // don't add screens that are already added
                     .forEach { wrapper ->
                         // TODO: It should be enough to dispatch this on commit action once.
                         transaction.add(id, wrapper.fragment).runOnCommit {
