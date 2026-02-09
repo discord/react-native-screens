@@ -4,6 +4,7 @@ import android.util.Log
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.fabric.FabricUIManager
+import com.facebook.react.internal.featureflags.ReactNativeFeatureFlags
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
 
@@ -72,7 +73,7 @@ class NativeProxy {
                 //          - Crash ticket: https://discord.sentry.io/issues/6921575309/?project=5992375&query=level%3Afatal&referrer=issue-stream
                 //          - Our PR: https://github.com/discord/discord/pull/245140
                 //          - SWM PR they did later: https://github.com/software-mansion/react-native-screens/pull/2964
-                screen.startRemovalTransition(screenTag)
+                screen.startRemovalTransition()
                 return
             }
 
