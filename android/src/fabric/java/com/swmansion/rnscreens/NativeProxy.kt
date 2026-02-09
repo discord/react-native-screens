@@ -63,6 +63,19 @@ class NativeProxy {
 
         val screen = weakScreeRef.get()
         if (screen is Screen) {
+            if (ReactNativeFeatureFlags.usePullModelOnAndroid()) {
+                // In pullModel we only ever call mountingManager->pullTransactions (which calls this) on the UI thread.
+                // Additionally its possible that in that transaction react actually wants to remove this
+                // screen so we have to start the transition immediately.
+                // As everything is now on the UI thread, this should be safe!
+                // TODO: Confirm that this isn't regressing:
+                //          - Crash ticket: https://discord.sentry.io/issues/6921575309/?project=5992375&query=level%3Afatal&referrer=issue-stream
+                //          - Our PR: https://github.com/discord/discord/pull/245140
+                //          - SWM PR they did later: https://github.com/software-mansion/react-native-screens/pull/2964
+                screen.startRemovalTransition(screenTag)
+                return
+            }
+
             val isScheduled =
                 screen.post {
                     screen.startRemovalTransition()
