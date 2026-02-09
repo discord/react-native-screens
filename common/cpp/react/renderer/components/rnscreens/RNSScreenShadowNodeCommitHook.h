@@ -22,6 +22,13 @@ class RNSScreenShadowNodeCommitHook : public UIManagerCommitHook {
 
   virtual void commitHookWasUnregistered(const UIManager &) noexcept override {}
 
+    // Discord fork adds these pure virtual methods to UIManagerCommitHook
+    // TODO: remove this after bumping RN fork in discord
+    virtual void shadowTreeCommitSucceeded(
+        const ShadowTreeCommitOptions &) override {}
+    virtual void shadowTreeCommitFinalized(
+        const ShadowTreeCommitOptions &) override {}
+
   virtual RootShadowNode::Unshared shadowTreeWillCommit(
       const ShadowTree &shadowTree,
       const RootShadowNode::Shared &oldRootShadowNode,
