@@ -39,6 +39,8 @@
 namespace react = facebook::react;
 #endif // RCT_NEW_ARCH_ENABLED
 
+static BOOL _rnsModalPresentationInProgress = NO;
+
 @interface RNSScreenStackView () <
     UINavigationControllerDelegate,
     UIAdaptivePresentationControllerDelegate,
@@ -573,9 +575,18 @@ RNS_IGNORE_SUPER_CALL_END
         return;
       }
 
+      NSLog(@"[kubson][RNSScreenStack] presentViewController START animated=%d controller=%@ screen=%@ thread=%@ isMainThread=%d",
+            shouldAnimate, next, NSStringFromClass([next class]), [NSThread currentThread], [NSThread isMainThread]);
+      _rnsModalPresentationInProgress = YES;
+      NSLog(@"[kubson][RNSScreenStack] _rnsModalPresentationInProgress = YES");
       [previous presentViewController:next
                              animated:shouldAnimate
                            completion:^{
+                             _rnsModalPresentationInProgress = NO;
+                             NSLog(@"[kubson][RNSScreenStack] _rnsModalPresentationInProgress = NO (completion)");
+                             NSTimeInterval inheritedDuration = [UIView inheritedAnimationDuration];
+                             NSLog(@"[kubson][RNSScreenStack] presentViewController COMPLETION controller=%@ inheritedAnimDuration=%.3f isMainThread=%d",
+                                   next, inheritedDuration, [NSThread isMainThread]);
                              [weakSelf.presentedModals addObject:next];
                              if (lastModal) {
                                afterTransitions();
@@ -1445,6 +1456,15 @@ RNS_IGNORE_SUPER_CALL_END
 - (void)mountingTransactionWillMount:(const facebook::react::MountingTransaction &)transaction
                 withSurfaceTelemetry:(const facebook::react::SurfaceTelemetry &)surfaceTelemetry
 {
+  NSLog(@"[kubson][RNSScreenStack] mountingTransactionWillMount START mutations=%lu inheritedAnimDuration=%.3f modalPresenting=%d",
+        (unsigned long)transaction.getMutations().size(), [UIView inheritedAnimationDuration], _rnsModalPresentationInProgress);
+
+  if (_rnsModalPresentationInProgress) {
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+    NSLog(@"[kubson][RNSScreenStack] CATransaction BEGIN disableActions=YES (modal presenting)");
+  }
+
   for (const auto &mutation : transaction.getMutations()) {
     if (mutation.type == react::ShadowViewMutation::Delete) {
       RNSScreenView *_Nullable toBeRemovedChild = [self childScreenForTag:mutation.oldChildShadowView.tag];
@@ -1494,6 +1514,12 @@ RNS_IGNORE_SUPER_CALL_END
       strongSelf->_toBeDeletedScreens.clear();
     });
   }
+  if (_rnsModalPresentationInProgress) {
+    [CATransaction commit];
+    NSLog(@"[kubson][RNSScreenStack] CATransaction COMMIT (modal presenting)");
+  }
+  NSLog(@"[kubson][RNSScreenStack] mountingTransactionDidMount END mutations=%lu inheritedAnimDuration=%.3f modalPresenting=%d",
+        (unsigned long)transaction.getMutations().size(), [UIView inheritedAnimationDuration], _rnsModalPresentationInProgress);
 }
 
 - (void)prepareForRecycle
