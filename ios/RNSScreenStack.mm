@@ -575,18 +575,11 @@ RNS_IGNORE_SUPER_CALL_END
         return;
       }
 
-      NSLog(@"[kubson][RNSScreenStack] presentViewController START animated=%d controller=%@ screen=%@ thread=%@ isMainThread=%d",
-            shouldAnimate, next, NSStringFromClass([next class]), [NSThread currentThread], [NSThread isMainThread]);
       _rnsModalPresentationInProgress = YES;
-      NSLog(@"[kubson][RNSScreenStack] _rnsModalPresentationInProgress = YES");
       [previous presentViewController:next
                              animated:shouldAnimate
                            completion:^{
                              _rnsModalPresentationInProgress = NO;
-                             NSLog(@"[kubson][RNSScreenStack] _rnsModalPresentationInProgress = NO (completion)");
-                             NSTimeInterval inheritedDuration = [UIView inheritedAnimationDuration];
-                             NSLog(@"[kubson][RNSScreenStack] presentViewController COMPLETION controller=%@ inheritedAnimDuration=%.3f isMainThread=%d",
-                                   next, inheritedDuration, [NSThread isMainThread]);
                              [weakSelf.presentedModals addObject:next];
                              if (lastModal) {
                                afterTransitions();
@@ -1456,13 +1449,9 @@ RNS_IGNORE_SUPER_CALL_END
 - (void)mountingTransactionWillMount:(const facebook::react::MountingTransaction &)transaction
                 withSurfaceTelemetry:(const facebook::react::SurfaceTelemetry &)surfaceTelemetry
 {
-  NSLog(@"[kubson][RNSScreenStack] mountingTransactionWillMount START mutations=%lu inheritedAnimDuration=%.3f modalPresenting=%d",
-        (unsigned long)transaction.getMutations().size(), [UIView inheritedAnimationDuration], _rnsModalPresentationInProgress);
-
   if (_rnsModalPresentationInProgress) {
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
-    NSLog(@"[kubson][RNSScreenStack] CATransaction BEGIN disableActions=YES (modal presenting)");
   }
 
   for (const auto &mutation : transaction.getMutations()) {
@@ -1516,10 +1505,7 @@ RNS_IGNORE_SUPER_CALL_END
   }
   if (_rnsModalPresentationInProgress) {
     [CATransaction commit];
-    NSLog(@"[kubson][RNSScreenStack] CATransaction COMMIT (modal presenting)");
   }
-  NSLog(@"[kubson][RNSScreenStack] mountingTransactionDidMount END mutations=%lu inheritedAnimDuration=%.3f modalPresenting=%d",
-        (unsigned long)transaction.getMutations().size(), [UIView inheritedAnimationDuration], _rnsModalPresentationInProgress);
 }
 
 - (void)prepareForRecycle
