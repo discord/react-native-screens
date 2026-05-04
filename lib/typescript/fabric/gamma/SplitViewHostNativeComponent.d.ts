@@ -1,4 +1,4 @@
-import type { CodegenTypes as CT, ViewProps } from 'react-native';
+import type { CodegenTypes as CT, ViewProps, HostComponent } from 'react-native';
 type GenericEmptyEvent = Readonly<{}>;
 type DisplayModeWillChangeEvent = {
     currentDisplayMode: string;
@@ -10,6 +10,7 @@ type SplitViewPrimaryEdge = 'leading' | 'trailing';
 type SplitViewDisplayMode = 'automatic' | 'secondaryOnly' | 'oneBesideSecondary' | 'oneOverSecondary' | 'twoBesideSecondary' | 'twoOverSecondary' | 'twoDisplaceSecondary';
 type SplitViewOrientation = 'inherit' | 'all' | 'allButUpsideDown' | 'portrait' | 'portraitUp' | 'portraitDown' | 'landscape' | 'landscapeLeft' | 'landscapeRight';
 type SplitViewPrimaryBackgroundStyle = 'default' | 'none' | 'sidebar';
+type SplitViewTopColumnForCollapsing = 'default' | 'primary' | 'supplementary' | 'secondary';
 interface ColumnMetrics {
     minimumPrimaryColumnWidth?: CT.WithDefault<CT.Float, -1.0>;
     maximumPrimaryColumnWidth?: CT.WithDefault<CT.Float, -1.0>;
@@ -32,6 +33,7 @@ interface NativeProps extends ViewProps {
     columnMetrics?: ColumnMetrics;
     orientation?: CT.WithDefault<SplitViewOrientation, 'inherit'>;
     primaryBackgroundStyle?: CT.WithDefault<SplitViewPrimaryBackgroundStyle, 'default'>;
+    topColumnForCollapsing?: CT.WithDefault<SplitViewTopColumnForCollapsing, 'default'>;
     presentsWithGesture?: CT.WithDefault<boolean, true>;
     showInspector?: CT.WithDefault<boolean, false>;
     onCollapse?: CT.DirectEventHandler<GenericEmptyEvent>;
@@ -39,6 +41,11 @@ interface NativeProps extends ViewProps {
     onExpand?: CT.DirectEventHandler<GenericEmptyEvent>;
     onInspectorHide?: CT.DirectEventHandler<GenericEmptyEvent>;
 }
-declare const _default: import("react-native").HostComponent<NativeProps>;
+type ComponentType = HostComponent<NativeProps>;
+interface NativeCommands {
+    showColumn: (viewRef: React.ElementRef<ComponentType>, column: string) => void;
+}
+export declare const Commands: NativeCommands;
+declare const _default: HostComponent<NativeProps>;
 export default _default;
 //# sourceMappingURL=SplitViewHostNativeComponent.d.ts.map

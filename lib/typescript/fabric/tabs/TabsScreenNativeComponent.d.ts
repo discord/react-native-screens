@@ -79,4 +79,4 @@ export interface NativeProps extends ViewProps {
 }
 declare const _default: import("react-native").HostComponent<NativeProps>;
 export default _default;
-//# sourceMappingURL=BottomTabsScreenNativeComponent.d.ts.map
+//# sourceMappingURL=TabsScreenNativeComponent.d.ts.map

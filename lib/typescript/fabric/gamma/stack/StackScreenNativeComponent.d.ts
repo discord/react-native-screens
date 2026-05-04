@@ -12,6 +12,8 @@ export interface NativeProps extends ViewProps {
     onWillDisappear?: CT.DirectEventHandler<GenericEmptyEvent>;
     onDidDisappear?: CT.DirectEventHandler<GenericEmptyEvent>;
     onDismiss?: CT.DirectEventHandler<OnDismissEventPayload>;
+    onNativeDismissPrevented?: CT.DirectEventHandler<GenericEmptyEvent>;
+    preventNativeDismiss?: CT.WithDefault<boolean, false>;
 }
 declare const _default: import("react-native").HostComponent<NativeProps>;
 export default _default;

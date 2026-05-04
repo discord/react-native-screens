@@ -16,5 +16,7 @@ export type StackScreenProps = {
     onDidDisappear?: StackScreenEventHandler;
     onDismiss?: (screenKey: string) => void;
     onNativeDismiss?: (screenKey: string) => void;
+    onNativeDismissPrevented?: StackScreenEventHandler;
+    preventNativeDismiss?: boolean;
 };
 //# sourceMappingURL=StackScreen.types.d.ts.map

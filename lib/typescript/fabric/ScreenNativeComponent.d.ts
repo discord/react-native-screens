@@ -79,6 +79,7 @@ export interface NativeProps extends ViewProps {
     topScrollEdgeEffect?: CT.WithDefault<ScrollEdgeEffect, 'automatic'>;
     synchronousShadowStateUpdatesEnabled?: CT.WithDefault<boolean, false>;
     androidResetScreenShadowStateOnOrientationChangeEnabled?: CT.WithDefault<boolean, true>;
+    ios26AllowInteractionsDuringTransition?: CT.WithDefault<boolean, true>;
 }
 declare const _default: import("react-native").HostComponent<NativeProps>;
 export default _default;
