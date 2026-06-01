@@ -123,10 +123,19 @@ open class CustomToolbar(
         // 3. edge-to-edge with translucent navigation buttons bar.
         //
         // Additionally we need to gracefully handle possible display cutouts.
+        //
+        // We deliberately omit the `unhandledInsets` argument here so that
+        // `resolveInsetsOrZero` falls back to `View.rootWindowInsets`. The
+        // insets dispatched via `onApplyWindowInsets` can be consumed by an
+        // ancestor view in the host's hierarchy before reaching this nested
+        // toolbar (e.g. `react-native-keyboard-controller`'s
+        // `EdgeToEdgeReactViewGroup`, which can drop `systemBars.top` to 0).
+        // The window-level insets are not subject to that consumption and
+        // match what `react-native-safe-area-context` reports on the JS side.
         val cutoutInsets =
-            resolveInsetsOrZero(WindowInsetsCompat.Type.displayCutout(), unhandledInsets)
+            resolveInsetsOrZero(WindowInsetsCompat.Type.displayCutout())
         val systemBarInsets =
-            resolveInsetsOrZero(WindowInsetsCompat.Type.systemBars(), unhandledInsets)
+            resolveInsetsOrZero(WindowInsetsCompat.Type.systemBars())
 
         // This seems to work fine in all tested configurations, because cutout & system bars overlap
         // only in portrait mode & top inset is controlled separately, therefore we don't count
