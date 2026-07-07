@@ -25,6 +25,7 @@ import ScreenStackHeaderSubviewNativeComponent, {
 } from '../fabric/ScreenStackHeaderSubviewNativeComponent';
 import { prepareHeaderBarButtonItems } from './helpers/prepareHeaderBarButtonItems';
 import { isHeaderBarButtonsAvailableForCurrentPlatform } from '../utils';
+import { useEdgeInsetApplication } from './contexts/EdgeInsetApplicationContext';
 
 export const ScreenStackHeaderSubview: React.ComponentType<ScreenStackHeaderSubviewNativeProps> =
   ScreenStackHeaderSubviewNativeComponent;
@@ -33,6 +34,13 @@ export const ScreenStackHeaderConfig = React.forwardRef<
   View,
   ScreenStackHeaderConfigProps
 >((props, ref) => {
+  const { consumeLeftInset, consumeRightInset, consumeBottomInset } =
+    useEdgeInsetApplication(
+      props.disableLeftInsetApplication ?? false,
+      props.disableRightInsetApplication ?? false,
+      props.disableBottomInsetApplication ?? false,
+    );
+
   const { headerLeftBarButtonItems, headerRightBarButtonItems } = props;
 
   const preparedHeaderLeftBarButtonItems =
@@ -113,6 +121,9 @@ export const ScreenStackHeaderConfig = React.forwardRef<
     <ScreenStackHeaderConfigNativeComponent
       {...props}
       userInterfaceStyle={props.experimental_userInterfaceStyle}
+      consumeLeftInset={consumeLeftInset}
+      consumeRightInset={consumeRightInset}
+      consumeBottomInset={consumeBottomInset}
       headerLeftBarButtonItems={preparedHeaderLeftBarButtonItems}
       headerRightBarButtonItems={preparedHeaderRightBarButtonItems}
       onPressHeaderBarButtonItem={onPressHeaderBarButtonItem}

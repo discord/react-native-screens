@@ -131,23 +131,21 @@ open class CustomToolbar(
         // This seems to work fine in all tested configurations, because cutout & system bars overlap
         // only in portrait mode & top inset is controlled separately, therefore we don't count
         // any insets twice.
-        val horizontalInsets =
-            InsetsCompat.of(
-                cutoutInsets.left + systemBarInsets.left,
-                0,
-                cutoutInsets.right + systemBarInsets.right,
-                0,
-            )
+        val leftInset = if (config.consumeLeftInset) cutoutInsets.left + systemBarInsets.left else 0
+        val rightInset = if (config.consumeRightInset) cutoutInsets.right + systemBarInsets.right else 0
+        val horizontalInsets = InsetsCompat.of(leftInset, 0, rightInset, 0)
 
-        // We want to handle display cutout always, no matter the HeaderConfig prop values.
-        // If there are no cutout displays, we want to apply the additional padding to
-        // respect the status bar.
+        // We want to handle display cutout, no matter the HeaderConfig prop values, as long as the
+        // respective edge is not opted out. If there are no cutout displays, we want to apply the
+        // additional top padding to respect the status bar. Top and bottom are controlled
+        // independently so that disabling one does not silently drop the other.
+        val bottomInset = if (config.consumeBottomInset) max(cutoutInsets.bottom, 0) else 0
         val verticalInsets =
             InsetsCompat.of(
                 0,
                 max(cutoutInsets.top, if (shouldApplyTopInset) systemBarInsets.top else 0),
                 0,
-                max(cutoutInsets.bottom, 0),
+                bottomInset,
             )
 
         val newInsets = InsetsCompat.add(horizontalInsets, verticalInsets)
