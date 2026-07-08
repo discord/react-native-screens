@@ -22,6 +22,7 @@ import com.facebook.react.views.text.ReactTypefaceUtils
 import com.swmansion.rnscreens.events.HeaderAttachedEvent
 import com.swmansion.rnscreens.events.HeaderDetachedEvent
 import kotlin.math.max
+import kotlin.properties.Delegates
 
 class ScreenStackHeaderConfig(
     context: Context,
@@ -48,6 +49,25 @@ class ScreenStackHeaderConfig(
     private var backButtonInCustomView = false
     private var tintColor = 0
     private var isAttachedToWindow = false
+
+    var consumeLeftInset by Delegates.observable(true) { _, oldValue, newValue ->
+        if (oldValue != newValue && isAttachedToWindow) {
+            toolbar.requestApplyInsets()
+        }
+    }
+
+    var consumeRightInset by Delegates.observable(true) { _, oldValue, newValue ->
+        if (oldValue != newValue && isAttachedToWindow) {
+            toolbar.requestApplyInsets()
+        }
+    }
+
+    var consumeBottomInset by Delegates.observable(true) { _, oldValue, newValue ->
+        if (oldValue != newValue && isAttachedToWindow) {
+            toolbar.requestApplyInsets()
+        }
+    }
+
     private val defaultStartInset: Int
     private val defaultStartInsetWithNavigation: Int
     private val backClickListener =

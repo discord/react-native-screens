@@ -37,6 +37,11 @@ export { default as SearchBar } from './components/SearchBar';
 export { default as ScreenContainer } from './components/ScreenContainer';
 export { default as ScreenStack } from './components/ScreenStack';
 export { default as ScreenStackItem } from './components/ScreenStackItem';
+export {
+  EdgeInsetApplicationContext,
+  useEdgeInsetApplication,
+} from './components/contexts/EdgeInsetApplicationContext';
+export type { EdgeInsetApplicationState } from './components/contexts/EdgeInsetApplicationContext';
 export { default as FullWindowOverlay } from './components/FullWindowOverlay';
 export { default as ScreenFooter } from './components/ScreenFooter';
 export { default as ScreenContentWrapper } from './components/ScreenContentWrapper';

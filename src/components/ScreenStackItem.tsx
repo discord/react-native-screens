@@ -22,6 +22,10 @@ import { FooterComponent } from './ScreenFooter';
 import { SafeAreaViewProps } from './safe-area/SafeAreaView.types';
 import SafeAreaView from './safe-area/SafeAreaView';
 import { featureFlags } from '../flags';
+import {
+  EdgeInsetApplicationContext,
+  useEdgeInsetApplication,
+} from './contexts/EdgeInsetApplicationContext';
 
 type Props = Omit<
   ScreenProps,
@@ -54,6 +58,12 @@ function ScreenStackItem(
   const screenRefs = React.useContext(RNSScreensRefContext);
 
   React.useImperativeHandle(ref, () => currentScreenRef.current!);
+
+  const { nextContextValue: nextEdgeContextValue } = useEdgeInsetApplication(
+    headerConfig?.disableLeftInsetApplication ?? false,
+    headerConfig?.disableRightInsetApplication ?? false,
+    headerConfig?.disableBottomInsetApplication ?? false,
+  );
 
   const stackPresentationWithDefault = stackPresentation ?? 'push';
   const headerConfigHiddenWithDefault = headerConfig?.hidden ?? false;
@@ -119,18 +129,20 @@ function ScreenStackItem(
 
   const content = (
     <>
-      <DebugContainer
-        contentStyle={contentStyle}
-        style={debugContainerStyle}
-        stackPresentation={stackPresentationWithDefault}>
-        {shouldUseSafeAreaView ? (
-          <SafeAreaView edges={getSafeAreaEdges(headerConfig)}>
-            {children}
-          </SafeAreaView>
-        ) : (
-          children
-        )}
-      </DebugContainer>
+      <EdgeInsetApplicationContext.Provider value={nextEdgeContextValue}>
+        <DebugContainer
+          contentStyle={contentStyle}
+          style={debugContainerStyle}
+          stackPresentation={stackPresentationWithDefault}>
+          {shouldUseSafeAreaView ? (
+            <SafeAreaView edges={getSafeAreaEdges(headerConfig)}>
+              {children}
+            </SafeAreaView>
+          ) : (
+            children
+          )}
+        </DebugContainer>
+      </EdgeInsetApplicationContext.Provider>
       {/**
        * `HeaderConfig` needs to be the direct child of `Screen` without any intermediate `View`
        * We don't render it conditionally based on visibility to make it possible to dynamically render a custom `header`

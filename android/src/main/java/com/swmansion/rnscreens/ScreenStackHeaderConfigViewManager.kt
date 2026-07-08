@@ -165,6 +165,30 @@ class ScreenStackHeaderConfigViewManager :
         logNotAvailable("topInsetEnabled")
     }
 
+    @ReactProp(name = "consumeLeftInset", defaultBoolean = true)
+    override fun setConsumeLeftInset(
+        config: ScreenStackHeaderConfig,
+        consumeLeftInset: Boolean,
+    ) {
+        config.consumeLeftInset = consumeLeftInset
+    }
+
+    @ReactProp(name = "consumeRightInset", defaultBoolean = true)
+    override fun setConsumeRightInset(
+        config: ScreenStackHeaderConfig,
+        consumeRightInset: Boolean,
+    ) {
+        config.consumeRightInset = consumeRightInset
+    }
+
+    @ReactProp(name = "consumeBottomInset", defaultBoolean = true)
+    override fun setConsumeBottomInset(
+        config: ScreenStackHeaderConfig,
+        consumeBottomInset: Boolean,
+    ) {
+        config.consumeBottomInset = consumeBottomInset
+    }
+
     @ReactProp(name = "color", customType = "Color")
     override fun setColor(
         config: ScreenStackHeaderConfig,
