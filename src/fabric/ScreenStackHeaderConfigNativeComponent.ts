@@ -72,9 +72,9 @@ export interface NativeProps extends ViewProps {
   blurEffect?: CT.WithDefault<BlurEffect, 'none'>;
   // TODO: implement this props on iOS
   topInsetEnabled?: boolean;
-  consumeLeftInset?: boolean;
-  consumeRightInset?: boolean;
-  consumeBottomInset?: boolean;
+  consumeLeftInset?: CT.WithDefault<boolean, true>;
+  consumeRightInset?: CT.WithDefault<boolean, true>;
+  consumeBottomInset?: CT.WithDefault<boolean, true>;
   headerLeftBarButtonItems?: CT.UnsafeMixed[];
   headerRightBarButtonItems?: CT.UnsafeMixed[];
   onPressHeaderBarButtonItem?: CT.DirectEventHandler<OnPressHeaderBarButtonItemEvent>;
