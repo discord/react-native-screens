@@ -326,7 +326,10 @@ RNS_IGNORE_SUPER_CALL_END
 #if RNS_IPHONE_OS_VERSION_AVAILABLE(26_0)
   if (@available(iOS 26.0, *)) {
     if (_barButtonItem != nil) {
-      [_barButtonItem setHidesSharedBackground:_hidesSharedBackground];
+      // Discord: our custom header buttons (e.g. the modal close "X") are already fully styled, so we opt them out
+      // of the iOS 26 shared "glass" capsule that UIKit applies to bar button items by default. react-navigation's
+      // native-stack does not forward `hidesSharedBackground`, so we default it on here rather than via JS props.
+      [_barButtonItem setHidesSharedBackground:YES];
     }
   }
 #endif // RNS_IPHONE_OS_VERSION_AVAILABLE(26_0)
