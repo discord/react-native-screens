@@ -86,5 +86,6 @@ export default codegenNativeComponent<NativeProps>(
   'RNSScreenStackHeaderConfig',
   {
     interfaceOnly: true,
+    generateOptionalProperties: true,
   },
 );
