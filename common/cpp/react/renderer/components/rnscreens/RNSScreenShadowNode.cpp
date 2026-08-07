@@ -104,7 +104,8 @@ void RNSScreenShadowNode::appendChild(
       const auto headerHeight = headerProps.hidden
           ? 0.f
           : findHeaderHeight(
-                headerProps.titleFontSize, headerProps.title.empty())
+                headerProps.titleFontSize,
+                headerProps.title.value_or("").empty())
                 .value_or(0.f);
 
       screenShadowNode.setPadding({0, 0, 0, headerHeight});

@@ -68,6 +68,18 @@ static const NSNumber *const DEFAULT_TITLE_LARGE_FONT_SIZE = @34;
 #ifdef RCT_NEW_ARCH_ENABLED
 @interface RNSScreenStackHeaderConfig () <RCTMountingTransactionObserving>
 @end
+
+static NSString *_Nullable RNSNSStringFromOptionalStringNilIfEmpty(
+    const std::optional<std::string> &optionalString)
+{
+  return optionalString.has_value() ? RCTNSStringFromStringNilIfEmpty(*optionalString) : nil;
+}
+
+static UIColor *_Nullable RNSUIColorFromOptionalSharedColor(
+    const std::optional<facebook::react::SharedColor> &optionalColor)
+{
+  return optionalColor.has_value() ? RCTUIColorFromSharedColor(*optionalColor) : nil;
+}
 #endif // RCT_NEW_ARCH_ENABLED
 
 @implementation RNSScreenStackHeaderConfig {
@@ -1118,26 +1130,26 @@ static RCTResizeMode resizeModeFromCppEquiv(react::ImageResizeMode resizeMode)
     [self setBackButtonInCustomView:newScreenProps.backButtonInCustomView];
   }
 
-  _title = RCTNSStringFromStringNilIfEmpty(newScreenProps.title);
+  _title = RNSNSStringFromOptionalStringNilIfEmpty(newScreenProps.title);
   if (newScreenProps.titleFontFamily != oldScreenProps.titleFontFamily) {
-    _titleFontFamily = RCTNSStringFromStringNilIfEmpty(newScreenProps.titleFontFamily);
+    _titleFontFamily = RNSNSStringFromOptionalStringNilIfEmpty(newScreenProps.titleFontFamily);
   }
-  _titleFontWeight = RCTNSStringFromStringNilIfEmpty(newScreenProps.titleFontWeight);
+  _titleFontWeight = RNSNSStringFromOptionalStringNilIfEmpty(newScreenProps.titleFontWeight);
   _titleFontSize = [self getFontSizePropValue:newScreenProps.titleFontSize];
   _hideShadow = newScreenProps.hideShadow;
 
   _largeTitle = newScreenProps.largeTitle;
   if (newScreenProps.largeTitleFontFamily != oldScreenProps.largeTitleFontFamily) {
-    _largeTitleFontFamily = RCTNSStringFromStringNilIfEmpty(newScreenProps.largeTitleFontFamily);
+    _largeTitleFontFamily = RNSNSStringFromOptionalStringNilIfEmpty(newScreenProps.largeTitleFontFamily);
   }
-  _largeTitleFontWeight = RCTNSStringFromStringNilIfEmpty(newScreenProps.largeTitleFontWeight);
+  _largeTitleFontWeight = RNSNSStringFromOptionalStringNilIfEmpty(newScreenProps.largeTitleFontWeight);
   _largeTitleFontSize = [self getFontSizePropValue:newScreenProps.largeTitleFontSize];
   _largeTitleHideShadow = newScreenProps.largeTitleHideShadow;
-  _largeTitleBackgroundColor = RCTUIColorFromSharedColor(newScreenProps.largeTitleBackgroundColor);
+  _largeTitleBackgroundColor = RNSUIColorFromOptionalSharedColor(newScreenProps.largeTitleBackgroundColor);
 
-  _backTitle = RCTNSStringFromStringNilIfEmpty(newScreenProps.backTitle);
+  _backTitle = RNSNSStringFromOptionalStringNilIfEmpty(newScreenProps.backTitle);
   if (newScreenProps.backTitleFontFamily != oldScreenProps.backTitleFontFamily) {
-    _backTitleFontFamily = RCTNSStringFromStringNilIfEmpty(newScreenProps.backTitleFontFamily);
+    _backTitleFontFamily = RNSNSStringFromOptionalStringNilIfEmpty(newScreenProps.backTitleFontFamily);
   }
   _backTitleFontSize = [self getFontSizePropValue:newScreenProps.backTitleFontSize];
   _hideBackButton = newScreenProps.hideBackButton;
@@ -1157,34 +1169,40 @@ static RCTResizeMode resizeModeFromCppEquiv(react::ImageResizeMode resizeMode)
 
   // We cannot compare SharedColor because it is shared value.
   // We could compare color value, but it is more performant to just assign new value
-  _titleColor = RCTUIColorFromSharedColor(newScreenProps.titleColor);
-  _largeTitleColor = RCTUIColorFromSharedColor(newScreenProps.largeTitleColor);
-  _color = RCTUIColorFromSharedColor(newScreenProps.color);
-  _backgroundColor = RCTUIColorFromSharedColor(newScreenProps.backgroundColor);
+  _titleColor = RNSUIColorFromOptionalSharedColor(newScreenProps.titleColor);
+  _largeTitleColor = RNSUIColorFromOptionalSharedColor(newScreenProps.largeTitleColor);
+  _color = RNSUIColorFromOptionalSharedColor(newScreenProps.color);
+  _backgroundColor = RNSUIColorFromOptionalSharedColor(newScreenProps.backgroundColor);
 
   if (newScreenProps.blurEffect != oldScreenProps.blurEffect) {
     _blurEffect = [RNSConvert RNSBlurEffectStyleFromCppEquivalent:newScreenProps.blurEffect];
   }
 
   if (newScreenProps.headerLeftBarButtonItems != oldScreenProps.headerLeftBarButtonItems) {
-    const auto &vec = newScreenProps.headerLeftBarButtonItems;
-    NSMutableArray<NSDictionary<NSString *, id> *> *array = [NSMutableArray arrayWithCapacity:vec.size()];
-    for (const auto &item : vec) {
-      NSDictionary *dict = [RNSConvert idFromFollyDynamic:item];
-      if ([dict isKindOfClass:[NSDictionary class]]) {
-        [array addObject:dict];
+    const auto &optionalItems = newScreenProps.headerLeftBarButtonItems;
+    NSMutableArray<NSDictionary<NSString *, id> *> *array =
+        [NSMutableArray arrayWithCapacity:optionalItems.has_value() ? optionalItems->size() : 0];
+    if (optionalItems.has_value()) {
+      for (const auto &item : *optionalItems) {
+        NSDictionary *dict = [RNSConvert idFromFollyDynamic:item];
+        if ([dict isKindOfClass:[NSDictionary class]]) {
+          [array addObject:dict];
+        }
       }
     }
     _headerLeftBarButtonItems = array;
   }
 
   if (newScreenProps.headerRightBarButtonItems != oldScreenProps.headerRightBarButtonItems) {
-    const auto &vec = newScreenProps.headerRightBarButtonItems;
-    NSMutableArray<NSDictionary<NSString *, id> *> *array = [NSMutableArray arrayWithCapacity:vec.size()];
-    for (const auto &item : vec) {
-      NSDictionary *dict = [RNSConvert idFromFollyDynamic:item];
-      if ([dict isKindOfClass:[NSDictionary class]]) {
-        [array addObject:dict];
+    const auto &optionalItems = newScreenProps.headerRightBarButtonItems;
+    NSMutableArray<NSDictionary<NSString *, id> *> *array =
+        [NSMutableArray arrayWithCapacity:optionalItems.has_value() ? optionalItems->size() : 0];
+    if (optionalItems.has_value()) {
+      for (const auto &item : *optionalItems) {
+        NSDictionary *dict = [RNSConvert idFromFollyDynamic:item];
+        if ([dict isKindOfClass:[NSDictionary class]]) {
+          [array addObject:dict];
+        }
       }
     }
     _headerRightBarButtonItems = array;
