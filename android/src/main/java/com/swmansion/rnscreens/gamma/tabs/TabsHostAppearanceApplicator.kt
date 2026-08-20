@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.view.children
 import androidx.core.view.isVisible
-import com.facebook.react.views.text.ReactFontManager
+import com.facebook.react.common.assets.ReactFontManager
 import com.facebook.react.uimanager.PixelUtil
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationBarView
