@@ -1,0 +1,1 @@
+{"version":3,"names":["codegenNativeComponent","interfaceOnly","excludedPlatforms"],"sourceRoot":"../../../../src","sources":["fabric/tabs/TabsHostIOSNativeComponent.ts"],"mappings":"AAAA,YAAY;;AAEZ,SAASA,sBAAsB,QAAQ,cAAc;;AAQrD;;AAsCA;;AAEA;;AAUA;;AAiCA,eAAeA,sBAAsB,CAAc,gBAAgB,EAAE;EACnEC,aAAa,EAAE,IAAI;EACnBC,iBAAiB,EAAE,CAAC,SAAS;AAC/B,CAAC,CAAC","ignoreList":[]}

@@ -1,0 +1,1 @@
+{"version":3,"names":["codegenNativeComponent","excludedPlatforms"],"sourceRoot":"../../../../../src","sources":["fabric/gamma/scroll-to-top-guard/ScrollToTopGuardNativeComponent.ts"],"mappings":"AAAA,YAAY;;AAEZ,SAASA,sBAAsB,QAAQ,cAAc;AAKrD,eAAeA,sBAAsB,CAAc,qBAAqB,EAAE;EACxEC,iBAAiB,EAAE,CAAC,SAAS;AAC/B,CAAC,CAAC","ignoreList":[]}

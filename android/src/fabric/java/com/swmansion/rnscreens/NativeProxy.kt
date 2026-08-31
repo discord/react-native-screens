@@ -4,6 +4,7 @@ import android.util.Log
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.fabric.FabricUIManager
+import com.facebook.react.internal.featureflags.ReactNativeFeatureFlags
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
 
@@ -68,6 +69,18 @@ class NativeProxy {
             // To prevent `Screen.isBeingRemoved` from being read as false during teardown,
             // we must set this flag synchronously here.
             screen.markAsBeingRemoved()
+            if (ReactNativeFeatureFlags.usePullModelOnAndroid()) {
+                // In pullModel we only ever call mountingManager->pullTransactions (which calls this) on the UI thread.
+                // Additionally its possible that in that transaction react actually wants to remove this
+                // screen so we have to start the transition immediately.
+                // As everything is now on the UI thread, this should be safe!
+                // TODO: Confirm that this isn't regressing:
+                //          - Crash ticket: https://discord.sentry.io/issues/6921575309/?project=5992375&query=level%3Afatal&referrer=issue-stream
+                //          - Our PR: https://github.com/discord/discord/pull/245140
+                //          - SWM PR they did later: https://github.com/software-mansion/react-native-screens/pull/2964
+                screen.startRemovalTransition()
+                return
+            }
             val isScheduled =
                 screen.post {
                     screen.startRemovalTransition()

@@ -1,0 +1,1 @@
+{"version":3,"names":["Platform","isIOS26OrHigher","OS","parseInt","Version"],"sourceRoot":"../../../../src","sources":["components/helpers/PlatformUtils.ts"],"mappings":"AAAA,SAASA,QAAQ,QAAQ,cAAc;AAEvC,OAAO,MAAMC,eAAe,GAC1BD,QAAQ,CAACE,EAAE,KAAK,KAAK,IAAIC,QAAQ,CAACH,QAAQ,CAACI,OAAO,EAAE,EAAE,CAAC,IAAI,EAAE","ignoreList":[]}

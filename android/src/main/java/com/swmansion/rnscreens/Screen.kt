@@ -42,7 +42,7 @@ import com.swmansion.rnscreens.utils.pxToDp
 import kotlin.math.max
 
 @SuppressLint("ViewConstructor") // Only we construct this view, it is never inflated.
-class Screen(
+open class Screen(
     val reactContext: ThemedReactContext,
 ) : FabricEnabledViewGroup(reactContext),
     ScreenContentWrapper.OnLayoutCallback,
@@ -454,7 +454,7 @@ class Screen(
         isBeingRemoved = true
     }
 
-    fun startRemovalTransition() {
+    open fun startRemovalTransition() {
         isBeingRemoved = true
         if (!isRemovalTransitionStarted) {
             isRemovalTransitionStarted = true
@@ -462,7 +462,7 @@ class Screen(
         }
     }
 
-    fun endRemovalTransition() {
+    open fun endRemovalTransition() {
         if (isRemovalTransitionStarted) {
             isRemovalTransitionStarted = false
             isBeingRemoved = false

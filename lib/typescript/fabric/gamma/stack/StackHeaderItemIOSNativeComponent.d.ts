@@ -1,0 +1,50 @@
+import type { CodegenTypes as CT, HostComponent, ImageResolvedAssetSource, ViewProps } from 'react-native';
+import { UnsafeMixed } from '../../codegenUtils';
+export type Placement = 'leading' | 'trailing' | 'title' | 'subtitle' | 'largeSubtitle';
+export type StackHeaderMenuItemIOS = {
+    id: string;
+    type: 'menuItem';
+    title?: string | undefined;
+    keepsMenuPresented?: boolean | undefined;
+};
+export type StackHeaderMenuIOS = {
+    id: string;
+    type: 'menu';
+    title?: string | undefined;
+    singleSelection?: boolean | undefined;
+    icon?: object | undefined;
+    displayInline?: boolean | undefined;
+    displayAsPalette?: boolean | undefined;
+    children: StackHeaderMenuElementIOS[];
+};
+export type StackHeaderMenuElementIOS = StackHeaderMenuItemIOS | StackHeaderMenuIOS;
+export type HeaderItemPressEvent = Readonly<{}>;
+export type PlatformIconShared = {
+    type: 'imageSource';
+    imageSource: ImageResolvedAssetSource;
+};
+export type PlatformIconTemplateIOS = {
+    type: 'templateSource';
+    templateSource: ImageResolvedAssetSource;
+};
+export type PlatformIconIOSSfSymbol = {
+    type: 'sfSymbol';
+    name: string;
+};
+export type PlatformIconIOSXcasset = {
+    type: 'xcasset';
+    name: string;
+};
+export type PlatformIconIOS = PlatformIconIOSSfSymbol | PlatformIconIOSXcasset | PlatformIconTemplateIOS | PlatformIconShared;
+export interface NativeProps extends ViewProps {
+    placement?: CT.WithDefault<Placement, 'trailing'>;
+    itemId?: string | undefined;
+    title?: string | undefined;
+    icon?: UnsafeMixed<PlatformIconIOS> | undefined;
+    menu?: UnsafeMixed<StackHeaderMenuIOS> | undefined;
+    respondsToOnPress?: CT.WithDefault<boolean, false>;
+    onHeaderItemPress?: CT.DirectEventHandler<HeaderItemPressEvent> | undefined;
+}
+declare const _default: HostComponent<NativeProps>;
+export default _default;
+//# sourceMappingURL=StackHeaderItemIOSNativeComponent.d.ts.map

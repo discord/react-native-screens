@@ -1,0 +1,1 @@
+{"version":3,"names":["_host","require","_screen","Tabs","exports","Host","TabsHost","Screen","TabsScreen"],"sourceRoot":"../../../../src","sources":["components/tabs/index.ts"],"mappings":";;;;;;AAAA,IAAAA,KAAA,GAAAC,OAAA;AACA,IAAAC,OAAA,GAAAD,OAAA;AA4CO,MAAME,IAAI,GAAAC,OAAA,CAAAD,IAAA,GAAG;EAClBE,IAAI,EAAEC,cAAQ;EACdC,MAAM,EAAEC;AACV,CAAC","ignoreList":[]}

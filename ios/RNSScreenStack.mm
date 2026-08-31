@@ -26,6 +26,8 @@
 
 namespace react = facebook::react;
 
+static BOOL _rnsModalPresentationInProgress = NO;
+
 @interface RNSScreenStackView () <UINavigationControllerDelegate,
                                   UIAdaptivePresentationControllerDelegate,
                                   UIGestureRecognizerDelegate,
@@ -483,9 +485,11 @@ RNS_IGNORE_SUPER_CALL_END
         return;
       }
 
+      _rnsModalPresentationInProgress = YES;
       [previous presentViewController:next
                              animated:shouldAnimate
                            completion:^{
+                             _rnsModalPresentationInProgress = NO;
                              [weakSelf.presentedModals addObject:next];
                              if (lastModal) {
                                afterTransitions();
@@ -1341,6 +1345,11 @@ RNS_IGNORE_SUPER_CALL_END
 - (void)mountingTransactionWillMount:(const facebook::react::MountingTransaction &)transaction
                 withSurfaceTelemetry:(const facebook::react::SurfaceTelemetry &)surfaceTelemetry
 {
+  if (_rnsModalPresentationInProgress) {
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+  }
+
   for (const auto &mutation : transaction.getMutations()) {
     if (mutation.type == react::ShadowViewMutation::Delete) {
       RNSScreenView *_Nullable toBeRemovedChild = [self childScreenForTag:mutation.oldChildShadowView.tag];
@@ -1369,6 +1378,10 @@ RNS_IGNORE_SUPER_CALL_END
       });
       break;
     }
+  }
+
+  if (_rnsModalPresentationInProgress) {
+    [CATransaction commit];
   }
 }
 

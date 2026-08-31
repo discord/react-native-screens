@@ -100,5 +100,8 @@ export default codegenNativeComponent<NativeProps>(
   'RNSScreenStackHeaderConfig',
   {
     interfaceOnly: true,
+    // Native codegen honors this; RN 0.87 public Options type omits it.
+    // @ts-expect-error
+    generateOptionalProperties: true,
   },
 ) as HostComponent<NativeProps>;

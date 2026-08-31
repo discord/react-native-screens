@@ -1,0 +1,1 @@
+{"version":3,"names":["_reactNative","require","StackHeaderConfig","View","_default","exports","default"],"sourceRoot":"../../../../../../src","sources":["components/gamma/stack/header/StackHeaderConfig.web.tsx"],"mappings":";;;;;;AAAA,IAAAA,YAAA,GAAAC,OAAA;AAEA,MAAMC,iBAAiB,GAAGC,iBAAI;AAAC,IAAAC,QAAA,GAAAC,OAAA,CAAAC,OAAA,GAEhBJ,iBAAiB","ignoreList":[]}

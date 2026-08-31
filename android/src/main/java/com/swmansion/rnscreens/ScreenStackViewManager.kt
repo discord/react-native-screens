@@ -10,7 +10,7 @@ import com.facebook.react.viewmanagers.RNSScreenStackManagerInterface
 import com.swmansion.rnscreens.events.StackFinishTransitioningEvent
 
 @ReactModule(name = ScreenStackViewManager.REACT_CLASS)
-class ScreenStackViewManager :
+open class ScreenStackViewManager :
     ViewGroupManager<ScreenStack>(),
     RNSScreenStackManagerInterface<ScreenStack> {
     private val delegate: ViewManagerDelegate<ScreenStack>

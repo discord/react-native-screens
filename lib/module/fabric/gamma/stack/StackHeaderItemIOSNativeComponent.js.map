@@ -1,0 +1,1 @@
+{"version":3,"names":["codegenNativeComponent","interfaceOnly","excludedPlatforms"],"sourceRoot":"../../../../../src","sources":["fabric/gamma/stack/StackHeaderItemIOSNativeComponent.ts"],"mappings":"AAAA,YAAY;;AAQZ,SAASA,sBAAsB,QAAQ,cAAc;;AAgCrD;;AAuCA,eAAeA,sBAAsB,CAAc,uBAAuB,EAAE;EAC1EC,aAAa,EAAE,IAAI;EACnBC,iBAAiB,EAAE,CAAC,SAAS;AAC/B,CAAC,CAAC","ignoreList":[]}

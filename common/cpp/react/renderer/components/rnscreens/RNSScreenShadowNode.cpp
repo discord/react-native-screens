@@ -122,7 +122,7 @@ void RNSScreenShadowNode::appendChild(
           ? 0.f
           : findHeaderHeight(
                 headerProps.titleFontSize,
-                headerProps.title.empty(),
+                headerProps.title.value_or("").empty(),
                 applyTopInset)
                 .value_or(0.f);
 

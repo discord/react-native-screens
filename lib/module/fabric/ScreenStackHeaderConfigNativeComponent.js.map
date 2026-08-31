@@ -1,0 +1,1 @@
+{"version":3,"names":["codegenNativeComponent","interfaceOnly","generateOptionalProperties"],"sourceRoot":"../../../src","sources":["fabric/ScreenStackHeaderConfigNativeComponent.ts"],"mappings":"AAAA,YAAY;;AAEZ,SAASA,sBAAsB,QAAQ,cAAc;;AAUrD;;AAEA;;AAoFA,eAAeA,sBAAsB,CACnC,4BAA4B,EAC5B;EACEC,aAAa,EAAE,IAAI;EACnBC,0BAA0B,EAAE;AAC9B,CACF,CAAC","ignoreList":[]}

@@ -1,0 +1,1 @@
+{"version":3,"names":["codegenNativeComponent","interfaceOnly","excludedPlatforms"],"sourceRoot":"../../../../../src","sources":["fabric/gamma/stack/StackHeaderSubviewAndroidNativeComponent.ts"],"mappings":"AAAA,YAAY;;AAOZ,SAASA,sBAAsB,QAAQ,cAAc;AAiBrD,eAAeA,sBAAsB,CACnC,8BAA8B,EAC9B;EACEC,aAAa,EAAE,IAAI;EACnBC,iBAAiB,EAAE,CAAC,KAAK;AAC3B,CACF,CAAC","ignoreList":[]}
