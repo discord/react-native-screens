@@ -73,9 +73,10 @@ open class Screen(
     var isStatusBarAnimated: Boolean? = null
 
     // Can be set on the mounting coordinator's thread (see `markAsBeingRemoved`), read on the UI thread.
+    // Protected so Screen subclasses can write it from start/endRemovalTransition overrides.
     @Volatile
     var isBeingRemoved = false
-        private set
+        protected set
 
     // Keeps `startTransitionRecursive` / `endTransitionRecursive` calls paired. Should be used on UI thread only.
     private var isRemovalTransitionStarted = false
