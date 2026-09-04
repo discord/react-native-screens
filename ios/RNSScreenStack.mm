@@ -35,11 +35,76 @@
 #import "integrations/RNSDismissibleModalProtocol.h"
 #import "utils/UINavigationBar+RNSUtility.h"
 
+#include <glog/logging.h>
+
 #ifdef RCT_NEW_ARCH_ENABLED
 namespace react = facebook::react;
 #endif // RCT_NEW_ARCH_ENABLED
 
 static BOOL _rnsModalPresentationInProgress = NO;
+
+// Discord: diagnostics for DISCORD-IOS-JSTK (present of an already-presented RNSScreen).
+static NSString *RNSDescribeModalVC(UIViewController *vc)
+{
+  if (vc == nil) {
+    return @"nil";
+  }
+  NSMutableString *result = [NSMutableString stringWithFormat:@"%@(%p)", NSStringFromClass(vc.class), vc];
+  if (vc.isBeingPresented) {
+    [result appendString:@" beingPresented"];
+  }
+  if (vc.isBeingDismissed) {
+    [result appendString:@" beingDismissed"];
+  }
+  if (vc.presentingViewController != nil) {
+    [result appendFormat:@" presentedBy=%@(%p)",
+                         NSStringFromClass(vc.presentingViewController.class),
+                         vc.presentingViewController];
+  }
+  if ([vc isKindOfClass:[RNSScreen class]]) {
+    RNSScreenView *screenView = ((RNSScreen *)vc).screenView;
+    if (screenView.screenId.length > 0) {
+      [result appendFormat:@" screenId=%@", screenView.screenId];
+    }
+    [result appendFormat:@" stackPresentation=%ld activityState=%d dismissed=%d",
+                         (long)screenView.stackPresentation,
+                         screenView.activityState,
+                         screenView.dismissed];
+  }
+  return result;
+}
+
+static NSString *RNSDescribeModalList(NSArray<UIViewController *> *controllers)
+{
+  NSMutableArray<NSString *> *parts = [NSMutableArray array];
+  for (UIViewController *vc in controllers) {
+    [parts addObject:RNSDescribeModalVC(vc)];
+  }
+  return parts.count == 0 ? @"(empty)" : [parts componentsJoinedByString:@" | "];
+}
+
+static CGFloat RNSKeyboardHeight(void)
+{
+  for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+    if (![scene isKindOfClass:[UIWindowScene class]]) {
+      continue;
+    }
+    for (UIWindow *window in ((UIWindowScene *)scene).windows) {
+      if ([NSStringFromClass(window.class) containsString:@"Keyboard"]) {
+        return CGRectGetHeight(window.bounds);
+      }
+    }
+  }
+  return 0;
+}
+
+static void RNSLogModalDiagnostics(google::LogSeverity severity, NSString *reason, NSDictionary *data)
+{
+  NSData *json = [NSJSONSerialization dataWithJSONObject:data options:0 error:nil];
+  NSString *payload =
+      json != nil ? [[NSString alloc] initWithData:json encoding:NSUTF8StringEncoding] : data.description;
+  LOG_AT_LEVEL(severity) << "[RNSScreenStack] " << reason.UTF8String << ": " << payload.UTF8String;
+}
 
 @interface RNSScreenStackView () <
     UINavigationControllerDelegate,
@@ -517,6 +582,15 @@ RNS_IGNORE_SUPER_CALL_END
   // even non-animated dismissal has delay and updates the screen several times)
   for (NSUInteger i = changeRootIndex; i < controllers.count; i++) {
     if ([_presentedModals containsObject:controllers[i]]) {
+      RNSLogModalDiagnostics(google::GLOG_ERROR, @"modal reshuffle", @{
+        @"changeRootIndex" : @(changeRootIndex),
+        @"reshuffled" : RNSDescribeModalVC(controllers[i]),
+        @"presentedModals" : RNSDescribeModalList(_presentedModals),
+        @"controllers" : RNSDescribeModalList(controllers),
+        @"updatingModals" : @(self.updatingModals),
+        @"scheduleModalsUpdate" : @(self.scheduleModalsUpdate),
+        @"keyboardHeight" : @(RNSKeyboardHeight()),
+      });
       RCTAssert(false, @"Modally presented controllers are being reshuffled, this is not allowed");
     }
   }
@@ -573,7 +647,38 @@ RNS_IGNORE_SUPER_CALL_END
       // https://github.com/software-mansion/react-native-screens/issues/1299 We call `updateContainer` again in
       // `presentationControllerDidDismiss` to cover this case and present new controller
       if (previous.beingDismissed) {
+        // Expected path (see issue 1299 above), so this is a warning rather than an error: it is
+        // context for a later failure, not a failure itself.
+        RNSLogModalDiagnostics(google::GLOG_WARNING, @"skip present, previous is beingDismissed", @{
+          @"previous" : RNSDescribeModalVC(previous),
+          @"next" : RNSDescribeModalVC(next),
+          @"changeRootIndex" : @(changeRootIndex),
+          @"presentedModals" : RNSDescribeModalList(weakSelf.presentedModals),
+          @"controllers" : RNSDescribeModalList(controllers),
+          @"updatingModals" : @(weakSelf.updatingModals),
+          @"scheduleModalsUpdate" : @(weakSelf.scheduleModalsUpdate),
+          @"keyboardHeight" : @(RNSKeyboardHeight()),
+        });
         return;
+      }
+
+      // This is exactly the condition UIKit is about to throw on, so the presentViewController:
+      // below aborts the process. Log before it, synchronously, or we lose the evidence.
+      if (next.presentingViewController != nil) {
+        RNSLogModalDiagnostics(google::GLOG_ERROR, @"present already-presented VC", @{
+          @"previous" : RNSDescribeModalVC(previous),
+          @"next" : RNSDescribeModalVC(next),
+          @"existingPresenter" : RNSDescribeModalVC(next.presentingViewController),
+          @"samePresenter" : @(next.presentingViewController == previous),
+          @"changeRootIndex" : @(changeRootIndex),
+          @"presentedModals" : RNSDescribeModalList(weakSelf.presentedModals),
+          @"controllers" : RNSDescribeModalList(controllers),
+          @"updatingModals" : @(weakSelf.updatingModals),
+          @"scheduleModalsUpdate" : @(weakSelf.scheduleModalsUpdate),
+          @"lastModal" : @(lastModal),
+          @"shouldAnimate" : @(shouldAnimate),
+          @"keyboardHeight" : @(RNSKeyboardHeight()),
+        });
       }
 
       _rnsModalPresentationInProgress = YES;
