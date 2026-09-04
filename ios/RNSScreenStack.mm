@@ -35,7 +35,7 @@
 #import "integrations/RNSDismissibleModalProtocol.h"
 #import "utils/UINavigationBar+RNSUtility.h"
 
-#import <React/RCTLog.h>
+#include <glog/logging.h>
 
 #ifdef RCT_NEW_ARCH_ENABLED
 namespace react = facebook::react;
@@ -44,8 +44,6 @@ namespace react = facebook::react;
 static BOOL _rnsModalPresentationInProgress = NO;
 
 // Discord: diagnostics for DISCORD-IOS-JSTK (present of an already-presented RNSScreen).
-// Breadcrumbs go to Sentry at runtime if the SDK is linked; RNScreens does not depend on it.
-
 static NSString *RNSDescribeModalVC(UIViewController *vc)
 {
   if (vc == nil) {
@@ -72,9 +70,6 @@ static NSString *RNSDescribeModalVC(UIViewController *vc)
                          (long)screenView.stackPresentation,
                          screenView.activityState,
                          screenView.dismissed];
-  }
-  if (vc.title.length > 0) {
-    [result appendFormat:@" title=%@", vc.title];
   }
   return result;
 }
@@ -103,23 +98,12 @@ static CGFloat RNSKeyboardHeight(void)
   return 0;
 }
 
-static void RNSLogModalDiagnostics(NSString *reason, NSDictionary *data)
+static void RNSLogModalDiagnostics(google::LogSeverity severity, NSString *reason, NSDictionary *data)
 {
-  RCTLogError(@"[RNSScreenStack] %@: %@", reason, data);
-  Class crumbClass = NSClassFromString(@"SentryBreadcrumb");
-  Class sdkClass = NSClassFromString(@"SentrySDK");
-  if (crumbClass == nil || sdkClass == nil) {
-    return;
-  }
-  id crumb = [[crumbClass alloc] init];
-  [crumb setValue:@(4) forKey:@"level"];
-  [crumb setValue:@"navigation.rnscreen" forKey:@"category"];
-  [crumb setValue:reason forKey:@"message"];
-  [crumb setValue:data forKey:@"data"];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-  [sdkClass performSelector:NSSelectorFromString(@"addBreadcrumb:") withObject:crumb];
-#pragma clang diagnostic pop
+  NSData *json = [NSJSONSerialization dataWithJSONObject:data options:0 error:nil];
+  NSString *payload =
+      json != nil ? [[NSString alloc] initWithData:json encoding:NSUTF8StringEncoding] : data.description;
+  LOG_AT_LEVEL(severity) << "[RNSScreenStack] " << reason.UTF8String << ": " << payload.UTF8String;
 }
 
 @interface RNSScreenStackView () <
@@ -598,7 +582,7 @@ RNS_IGNORE_SUPER_CALL_END
   // even non-animated dismissal has delay and updates the screen several times)
   for (NSUInteger i = changeRootIndex; i < controllers.count; i++) {
     if ([_presentedModals containsObject:controllers[i]]) {
-      RNSLogModalDiagnostics(@"modal reshuffle", @{
+      RNSLogModalDiagnostics(google::GLOG_ERROR, @"modal reshuffle", @{
         @"changeRootIndex" : @(changeRootIndex),
         @"reshuffled" : RNSDescribeModalVC(controllers[i]),
         @"presentedModals" : RNSDescribeModalList(_presentedModals),
@@ -663,7 +647,9 @@ RNS_IGNORE_SUPER_CALL_END
       // https://github.com/software-mansion/react-native-screens/issues/1299 We call `updateContainer` again in
       // `presentationControllerDidDismiss` to cover this case and present new controller
       if (previous.beingDismissed) {
-        RNSLogModalDiagnostics(@"skip present, previous is beingDismissed", @{
+        // Expected path (see issue 1299 above), so this is a warning rather than an error: it is
+        // context for a later failure, not a failure itself.
+        RNSLogModalDiagnostics(google::GLOG_WARNING, @"skip present, previous is beingDismissed", @{
           @"previous" : RNSDescribeModalVC(previous),
           @"next" : RNSDescribeModalVC(next),
           @"changeRootIndex" : @(changeRootIndex),
@@ -676,8 +662,10 @@ RNS_IGNORE_SUPER_CALL_END
         return;
       }
 
+      // This is exactly the condition UIKit is about to throw on, so the presentViewController:
+      // below aborts the process. Log before it, synchronously, or we lose the evidence.
       if (next.presentingViewController != nil) {
-        RNSLogModalDiagnostics(@"present already-presented VC", @{
+        RNSLogModalDiagnostics(google::GLOG_ERROR, @"present already-presented VC", @{
           @"previous" : RNSDescribeModalVC(previous),
           @"next" : RNSDescribeModalVC(next),
           @"existingPresenter" : RNSDescribeModalVC(next.presentingViewController),
