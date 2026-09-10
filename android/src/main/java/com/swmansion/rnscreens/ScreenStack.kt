@@ -119,6 +119,9 @@ open class ScreenStack(
         UIManagerHelper
             .getEventDispatcherForReactTag((context as ReactContext), id)
             ?.dispatchEvent(StackFinishTransitioningEvent(surfaceId, id))
+        // Per-screen jank: the only arrival that survives a non-covering presentation, where the screen
+        // below never disappears and so no per-screen lifecycle event fires.
+        ScreenTransitionNotifier.notifyDidAppear(topScreen?.screenId)
     }
 
     override fun removeScreenAt(index: Int) {
