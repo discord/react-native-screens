@@ -225,6 +225,11 @@ open class ScreenFragment :
                     UIManagerHelper.getEventDispatcherForReactTag(screenContext, screen.id)
                 eventDispatcher?.dispatchEvent(lifecycleEvent)
                 fragmentWrapper.dispatchLifecycleEventInChildContainers(event)
+                // Per-screen jank: a stack-hosted screen arrived. Top-most only, so one already left behind
+                // cannot be taken for the current.
+                if (event == ScreenLifecycleEvent.DID_APPEAR && it.container?.topScreen === it) {
+                    ScreenTransitionNotifier.notifyDidAppear(it.screenId)
+                }
             }
         }
     }

@@ -348,6 +348,10 @@ open class Screen(
         }
         this.activityState = activityState
         container?.onChildUpdate()
+        // Per-screen jank: container-hosted screens get no lifecycle event, so ON_TOP is their only arrival.
+        if (activityState == ActivityState.ON_TOP) {
+            ScreenTransitionNotifier.notifyBecameTopMost(screenId)
+        }
     }
 
     fun setScreenOrientation(screenOrientation: String?) {
