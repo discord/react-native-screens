@@ -242,6 +242,8 @@ static void RNSLogModalDiagnostics(google::LogSeverity severity, NSString *reaso
   RNSPercentDrivenInteractiveTransition *_interactionController;
   __weak RNSScreenStackManager *_manager;
   BOOL _updateScheduled;
+  // Discord: whether this stack opened a CATransaction in mountingTransactionWillMount that it still has to commit.
+  BOOL _ownsMountingCATransaction;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -1450,18 +1452,27 @@ RNS_IGNORE_SUPER_CALL_END
 - (void)mountingTransactionWillMount:(const facebook::react::MountingTransaction &)transaction
                 withSurfaceTelemetry:(const facebook::react::SurfaceTelemetry &)surfaceTelemetry
 {
-  if (_rnsModalPresentationInProgress) {
-    [CATransaction begin];
-    [CATransaction setDisableActions:YES];
-  }
-
+  BOOL isDeletedInTransaction = NO;
   for (const auto &mutation : transaction.getMutations()) {
     if (mutation.type == react::ShadowViewMutation::Delete) {
+      if (mutation.oldChildShadowView.tag == self.tag) {
+        isDeletedInTransaction = YES;
+      }
       RNSScreenView *_Nullable toBeRemovedChild = [self childScreenForTag:mutation.oldChildShadowView.tag];
       if (toBeRemovedChild != nil) {
         [toBeRemovedChild willBeUnmountedInUpcomingTransaction];
       }
     }
+  }
+
+  // Discord: RCTMountingManager unregisters a view from the transaction observers while executing its Delete
+  // mutation, so a stack deleted by this transaction never gets mountingTransactionDidMount. A CATransaction it
+  // opened here would never be committed, and nothing on the main thread would reach the screen after it,
+  // including the in-flight modal presentation, which then never completes.
+  if (_rnsModalPresentationInProgress && !isDeletedInTransaction) {
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+    _ownsMountingCATransaction = YES;
   }
 }
 
@@ -1485,7 +1496,10 @@ RNS_IGNORE_SUPER_CALL_END
     }
   }
 
-  if (_rnsModalPresentationInProgress) {
+  // Discord: commit only what this stack opened, not whatever the flag says now. A stack created by this transaction
+  // is registered after mountingTransactionWillMount went out, so it gets this call without having opened anything.
+  if (_ownsMountingCATransaction) {
+    _ownsMountingCATransaction = NO;
     [CATransaction commit];
   }
 }
