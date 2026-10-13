@@ -1452,10 +1452,15 @@ RNS_IGNORE_SUPER_CALL_END
 - (void)mountingTransactionWillMount:(const facebook::react::MountingTransaction &)transaction
                 withSurfaceTelemetry:(const facebook::react::SurfaceTelemetry &)surfaceTelemetry
 {
+  // Discord: every willMount is followed by a didMount for a stack that is not deleted in between, so this only
+  // fires if that pairing breaks. Committing keeps the begin/commit balanced instead of leaking the old one.
+  [self commitUnbalancedMountingCATransaction:@"willMount with uncommitted CATransaction"];
+
+  const NSInteger tag = self.tag;
   BOOL isDeletedInTransaction = NO;
   for (const auto &mutation : transaction.getMutations()) {
     if (mutation.type == react::ShadowViewMutation::Delete) {
-      if (mutation.oldChildShadowView.tag == self.tag) {
+      if (mutation.oldChildShadowView.tag == tag) {
         isDeletedInTransaction = YES;
       }
       RNSScreenView *_Nullable toBeRemovedChild = [self childScreenForTag:mutation.oldChildShadowView.tag];
@@ -1504,8 +1509,28 @@ RNS_IGNORE_SUPER_CALL_END
   }
 }
 
+// Discord: commits a CATransaction this stack opened in mountingTransactionWillMount but never got the matching
+// mountingTransactionDidMount for. Left open, it would keep anything on the main thread from reaching the screen.
+- (void)commitUnbalancedMountingCATransaction:(NSString *)reason
+{
+  if (!_ownsMountingCATransaction) {
+    return;
+  }
+
+  RNSLogModalDiagnostics(google::GLOG_ERROR, reason, @{
+    @"modalPresentationInProgress" : @(_rnsModalPresentationInProgress),
+    @"presentedModals" : RNSDescribeModalList(_presentedModals),
+  });
+  _ownsMountingCATransaction = NO;
+  [CATransaction commit];
+}
+
 - (void)prepareForRecycle
 {
+  // Discord: a pooled stack must not carry an open CATransaction, nor a stale flag that would make its first
+  // didMount after reuse commit a transaction it never opened.
+  [self commitUnbalancedMountingCATransaction:@"recycled with uncommitted CATransaction"];
+
   [super prepareForRecycle];
   _reactSubviews = [NSMutableArray new];
 
