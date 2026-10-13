@@ -106,6 +106,8 @@ open class ScreenContainer(
         screen.fragmentWrapper = fragment
         screenWrappers.add(index, fragment)
         screen.container = this
+        // Per-screen jank: a screen's first ON_TOP arrives before it has a host, so it is only judged here.
+        screen.notifyTopMostIfContainerHosted()
         onScreenChanged()
     }
 
