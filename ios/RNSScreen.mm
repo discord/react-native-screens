@@ -4,6 +4,7 @@
 #import "RNSScreen.h"
 #import "RNSScreenContainer.h"
 #import "RNSScreenContentWrapper.h"
+#import "RNSScreenTransitionNotifier.h"
 #import "RNSScreenWindowTraits.h"
 
 #import <React/RCTConversions.h>
@@ -1501,12 +1502,25 @@ Class<RCTComponentViewProtocol> RNSScreenCls(void)
   }
 }
 
+static BOOL RNSIsTopMostScreen(UIViewController *controller)
+{
+  UINavigationController *navigationController = controller.navigationController;
+  if (navigationController != nil) {
+    return navigationController.topViewController == controller;
+  }
+  // Presented directly as a modal, so top-most unless something is presented over it.
+  return controller.presentingViewController != nil && controller.presentedViewController == nil;
+}
+
 - (void)viewDidAppear:(BOOL)animated
 {
   [super viewDidAppear:animated];
   if (!_isSwiping || _shouldNotify) {
     // we are going forward or dismissing without swipe
     // or successfully swiped back
+    if (RNSIsTopMostScreen(self)) {
+      RNSNotifyScreenDidArrive(self.screenView.screenId);
+    }
     [self.screenView notifyAppear];
     [self notifyTransitionProgress:1.0 closing:NO goingForward:_goingForward];
   } else {

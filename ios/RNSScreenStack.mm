@@ -16,6 +16,7 @@
 #import "RNSScreen.h"
 #import "RNSScreenStackAnimator.h"
 #import "RNSScreenStackHeaderConfig.h"
+#import "RNSScreenTransitionNotifier.h"
 #import "RNSScreenWindowTraits.h"
 #import "RNSScrollViewFinder.h"
 #import "RNSTabsScreenViewController.h"
@@ -301,8 +302,21 @@ static void RNSLogModalDiagnostics(google::LogSeverity severity, NSString *reaso
 
 #pragma mark - Common
 
+// Preloaded screens can sit above the last OnTop one.
+static NSString *_Nullable RNSTopMostScreenId(NSArray<RNSScreenView *> *screens)
+{
+  for (RNSScreenView *screen in screens.reverseObjectEnumerator) {
+    if (screen.activityState == RNSActivityStateOnTop) {
+      return screen.screenId;
+    }
+  }
+  return nil;
+}
+
 - (void)emitOnFinishTransitioningEvent
 {
+  // Form sheets and transparent modals leave the screen below visible, so it gets no viewDidAppear.
+  RNSNotifyScreenDidArrive(RNSTopMostScreenId(_reactSubviews));
   if (_eventEmitter != nullptr) {
     std::dynamic_pointer_cast<const react::RNSScreenStackEventEmitter>(_eventEmitter)
         ->onFinishTransitioning(react::RNSScreenStackEventEmitter::OnFinishTransitioning{});
