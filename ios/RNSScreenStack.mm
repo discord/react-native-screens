@@ -302,21 +302,38 @@ static void RNSLogModalDiagnostics(google::LogSeverity severity, NSString *reaso
 
 #pragma mark - Common
 
-// Preloaded screens can sit above the last OnTop one.
-static NSString *_Nullable RNSTopMostScreenId(NSArray<RNSScreenView *> *screens)
+// The deepest screen of every native stack on top, read from native state: the subviews JS drives still hold a
+// screen the user dismissed natively (a sheet swiped down), and per-screen jank matches a remembered arrival against
+// the leaf route only. A sibling stack (the voice panel's app launcher stays mounted, frozen) posts its own leaf,
+// which the consumer's expected path rules out.
+static void RNSCollectTopScreenIds(UIViewController *_Nullable controller, NSMutableArray<NSString *> *screenIds)
 {
-  for (RNSScreenView *screen in screens.reverseObjectEnumerator) {
-    if (screen.activityState == RNSActivityStateOnTop) {
-      return screen.screenId;
+  if (![controller isKindOfClass:[RNSScreen class]]) {
+    return;
+  }
+  NSUInteger countBefore = screenIds.count;
+  // Attach order, so the stack mounted first (the app's own) posts first.
+  for (UIViewController *child in controller.childViewControllers) {
+    // Native stacks only: a two-state screen container wraps its active screen in a subclass, and container
+    // screens carry no id.
+    if ([child isMemberOfClass:[RNSNavigationController class]]) {
+      RNSCollectTopScreenIds(((UINavigationController *)child).topViewController, screenIds);
     }
   }
-  return nil;
+  NSString *screenId = ((RNSScreen *)controller).screenView.screenId;
+  if (screenIds.count == countBefore && screenId != nil) {
+    [screenIds addObject:screenId];
+  }
 }
 
 - (void)emitOnFinishTransitioningEvent
 {
   // Form sheets and transparent modals leave the screen below visible, so it gets no viewDidAppear.
-  RNSNotifyScreenDidArrive(RNSTopMostScreenId(_reactSubviews));
+  NSMutableArray<NSString *> *screenIds = [NSMutableArray array];
+  RNSCollectTopScreenIds(_presentedModals.lastObject ?: _controller.topViewController, screenIds);
+  for (NSString *screenId in screenIds) {
+    RNSNotifyScreenDidArrive(screenId);
+  }
   if (_eventEmitter != nullptr) {
     std::dynamic_pointer_cast<const react::RNSScreenStackEventEmitter>(_eventEmitter)
         ->onFinishTransitioning(react::RNSScreenStackEventEmitter::OnFinishTransitioning{});
