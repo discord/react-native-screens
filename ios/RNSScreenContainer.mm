@@ -1,7 +1,6 @@
 #import "RNSScreenContainer.h"
 #import "RNSDefines.h"
 #import "RNSScreen.h"
-#import "RNSScreenTransitionNotifier.h"
 
 #import <React/RCTConversions.h>
 #import <React/RCTFabricComponentsPlugins.h>
@@ -59,7 +58,6 @@ namespace react = facebook::react;
 @implementation RNSScreenContainerView {
   BOOL _invalidated;
   NSMutableSet *_activeScreens;
-  __weak RNSScreenView *_lastArrivedScreen;
 }
 
 - (instancetype)init
@@ -202,11 +200,6 @@ RNS_IGNORE_SUPER_CALL_END
   for (RNSScreenView *screen in _reactSubviews) {
     if (screen.activityState == RNSActivityStateOnTop) {
       [screen notifyFinishTransitioning];
-      // Container-hosted screens get no viewDidAppear, so this is their only arrival.
-      if (screen != _lastArrivedScreen) {
-        _lastArrivedScreen = screen;
-        RNSNotifyScreenDidArrive(screen.screenId);
-      }
     }
   }
 
@@ -312,7 +305,6 @@ RNS_IGNORE_SUPER_CALL_END
 - (void)prepareForRecycle
 {
   [super prepareForRecycle];
-  _lastArrivedScreen = nil;
   [_controller willMoveToParentViewController:nil];
   [_controller removeFromParentViewController];
 }
