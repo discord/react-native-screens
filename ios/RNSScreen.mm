@@ -1518,7 +1518,7 @@ static BOOL RNSIsTopMostScreen(UIViewController *controller)
   if (!_isSwiping || _shouldNotify) {
     // we are going forward or dismissing without swipe
     // or successfully swiped back
-    if (RNSIsTopMostScreen(self)) {
+    if (RNSIsTopMostScreen(self) && !RNSIsHostScreenTransitioning(self.navigationController)) {
       RNSNotifyScreenDidArrive(self.screenView.screenId);
     }
     [self.screenView notifyAppear];
