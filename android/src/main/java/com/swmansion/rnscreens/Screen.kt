@@ -348,22 +348,6 @@ open class Screen(
         }
         this.activityState = activityState
         container?.onChildUpdate()
-        if (activityState == ActivityState.ON_TOP) {
-            notifyTopMostIfContainerHosted()
-        }
-    }
-
-    /**
-     * Per-screen jank: container-hosted screens (the JS stack, `<Freeze>`) get no lifecycle event, so ON_TOP is
-     * their only arrival. A native-stack screen is ON_TOP from its first render, i.e. when its transition *starts*;
-     * its arrival is DID_APPEAR from [ScreenFragment]. The host is unknown on the first prop update, before the
-     * screen is inserted, so [ScreenContainer.addScreen] repeats this check once it is.
-     */
-    internal fun notifyTopMostIfContainerHosted() {
-        val host = container ?: return
-        if (host !is ScreenStack && activityState == ActivityState.ON_TOP) {
-            ScreenTransitionNotifier.notifyBecameTopMost(screenId)
-        }
     }
 
     fun setScreenOrientation(screenOrientation: String?) {
