@@ -8,8 +8,6 @@ object ScreenTransitionNotifier {
 
     interface Listener {
         fun onScreenDidAppear(screenId: String?)
-
-        fun onScreenBecameTopMost(screenId: String?)
     }
 
     @Volatile
@@ -22,14 +20,6 @@ object ScreenTransitionNotifier {
             listener?.onScreenDidAppear(screenId)
         } catch (e: Exception) {
             Log.e(TAG, "listener.onScreenDidAppear threw", e)
-        }
-    }
-
-    fun notifyBecameTopMost(screenId: String?) {
-        try {
-            listener?.onScreenBecameTopMost(screenId)
-        } catch (e: Exception) {
-            Log.e(TAG, "listener.onScreenBecameTopMost threw", e)
         }
     }
 }

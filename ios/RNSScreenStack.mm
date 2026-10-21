@@ -328,11 +328,18 @@ static void RNSCollectTopScreenIds(UIViewController *_Nullable controller, NSMut
 
 - (void)emitOnFinishTransitioningEvent
 {
+  [self emitOnFinishTransitioningEventPostingArrivals:YES];
+}
+
+- (void)emitOnFinishTransitioningEventPostingArrivals:(BOOL)postArrivals
+{
   // Form sheets and transparent modals leave the screen below visible, so it gets no viewDidAppear.
-  NSMutableArray<NSString *> *screenIds = [NSMutableArray array];
-  RNSCollectTopScreenIds(_presentedModals.lastObject ?: _controller.topViewController, screenIds);
-  for (NSString *screenId in screenIds) {
-    RNSNotifyScreenDidArrive(screenId);
+  if (postArrivals) {
+    NSMutableArray<NSString *> *screenIds = [NSMutableArray array];
+    RNSCollectTopScreenIds(_presentedModals.lastObject ?: _controller.topViewController, screenIds);
+    for (NSString *screenId in screenIds) {
+      RNSNotifyScreenDidArrive(screenId);
+    }
   }
   if (_eventEmitter != nullptr) {
     std::dynamic_pointer_cast<const react::RNSScreenStackEventEmitter>(_eventEmitter)
@@ -1130,7 +1137,8 @@ RNS_IGNORE_SUPER_CALL_END
        didShowViewController:(UIViewController *)viewController
                     animated:(BOOL)animated
 {
-  [self emitOnFinishTransitioningEvent];
+  // Only shows: this stack's own modals end in their completion while the host's coordinator is still attached.
+  [self emitOnFinishTransitioningEventPostingArrivals:!RNSIsHostScreenTransitioning(navigationController)];
   [RNSScreenWindowTraits updateWindowTraits];
   // Because of the bug that caused view to have incorrect dimensions while changing the orientation,
   // we need to signalize that it needs to be layouted.
