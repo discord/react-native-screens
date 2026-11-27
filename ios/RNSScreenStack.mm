@@ -1511,7 +1511,6 @@ RNS_IGNORE_SUPER_CALL_END
   // including the in-flight modal presentation, which then never completes.
   if (_rnsModalPresentationInProgress && !isDeletedInTransaction) {
     [CATransaction begin];
-    [CATransaction setDisableActions:YES];
     _ownsMountingCATransaction = YES;
   }
 }
